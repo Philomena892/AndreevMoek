@@ -12,15 +12,15 @@ coo(R,C,T) :- position(robot(R),C,T).
 
 % - oldmove/3 ----------------------------------------------------------------------
 coo(R,C,T) :- oldmove(R,D,T), coo(R,C',T-1),     nextto(C',D,C).
-                :- oldmove(R,D,T), coo(R,C ,T-1), not nextto(C ,D,_).
+            :- oldmove(R,D,T), coo(R,C ,T-1), not nextto(C ,D,_).
 
 % - conflicts -------------------------------------------------------------------
 conflict(R,S,T):- R<S, coo(R,C,T), coo(S,C,T).
 
-{move(S,D,T) : oldmove(S,D,T)} 1 :- conflict(R,S,T'), T < T', time(T).
+% - Voraussetzung: Roboter S verlässt sofort das sinkende Schiff.
+move(robot(S),D,T) :- oldmove(S,D,T), conflict(R,S,T'), T < T'.
+move(robot(S),D,T+1) :- oldmove(S,D,T), conflict(R,S,T'), T >= T'.
 
-% - Voraussetzung: Roboter R verlässt sofort das sinkende Schiff.
-move(R,D,T):- conflict(R,S,T), oldmove(R,D,T).
-move(S,D,T+1):- conflict(R,S,T), oldmove(S,D,T).
+move(robot(R),D,T):- conflict(R,S,_), oldmove(R,D,T).
 
-%move(R,D,T) :- oldmove(R,D,_), nextto()
+move(robot(A),D,T):- oldmove(A,D,T), not conflict(_,_,_).
