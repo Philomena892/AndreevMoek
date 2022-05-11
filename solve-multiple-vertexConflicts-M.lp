@@ -12,7 +12,7 @@ coo(R,C,T) :- position(robot(R),C,T).
 
 % - conflicts -------------------------------------------------------------------
 conflict(R,S,T)         :- vertex_conflict(R,S,T).
-vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), coo(S,C,T), move(robot(R),D,T), nextmove(robot(S),D',T), D != D'.
+vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), nextmove(S,D',T), D != D'.
 
 % - coo/3 -----------------------------------------------------------------------
 % to have position of robots at every timepoint
@@ -20,6 +20,13 @@ vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), coo(S,C,T), move(robot(R),D,T), next
 coo(R,C,T) :- move(robot(R),D,T), coo(R,C',T-1), nextto(C',D,C).
            :- move(robot(R),D,T), coo(R,C ,T-1), not nextto(C ,D,_).
 
+% Philomenas idea
+%coo(R,C,T) :- not oldmove(R,_,T), coo(R,C,T-1), time(T).
+
+% works better without for now
+
+coo(R,C,T) :- wait(R,T), coo(R,C,T-1), time(T).
+%coo(R,C,T) :- not move(robot(R),_,T-1), coo(R,C,T-1), time(T-1).
 
 % give priority to the first robot and copy its old path
 { move(robot(R),D,T) }  :- oldmove(R,D,T).
@@ -28,16 +35,10 @@ move(robot(R),D,T)      :- conflict(R,S,_), oldmove(R,D,T).
 
 % copy all old moves for the second robot up to the first conflict
 nextmove(S,D,T) :- move(robot(S),D,T-1), oldmove(S,D,T).
+nextcoo(S,C,T)  :- nextmove(S,D,T), coo(R,C',T-1), nextto(C',D,C).
 
 wait(S,T)   :- conflict(R,S,T).
 move(robot(S),D,T+Z) :- conflict(R,S,_), oldmove(S,D,T), Z = #sum{1: wait(S,T')}, T' <= T, time(T'), time(Z).
-
-% idea: plan ahead and use these for identifying conflicts w/o the moves
-nextmove(S,D,T+Z)   :- conflict(R,S,_), oldmove(S,D,T+1), Z = #sum{wait(S,T')}, T' <= T, time(T'), time(Z).
-
-nextcoo(R,C,T)  :- nextmove(R,D,T), coo(R,C',T-1), nextto(C',D,C).
-                :- nextmove(R,D,T), coo(R,C ,T-1), not nextto(C ,D,_).
-
 
 % take different actions depending on the type of the conflict
 % vertex_conflict: second robot waits for one time point
