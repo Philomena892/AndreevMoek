@@ -8,6 +8,7 @@ nextto((X,Y),(DX,DY),(X',Y')) :- direction((DX,DY)), position((X,Y)), position((
                                  (X,Y)=(X'-DX,Y'-DY), (X',Y')=(X+DX,Y+DY).
 
 oldmove(R,D,T) :- occurs(object(robot, R), action(move, D), T).
+timemove(R,T) :- move(robot(R),_,T).
 coo(R,C,T) :- position(robot(R),C,T).
 
 % - conflicts -------------------------------------------------------------------
@@ -20,17 +21,14 @@ vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), 
 coo(R,C,T) :- move(robot(R),D,T), coo(R,C',T-1), nextto(C',D,C).
            :- move(robot(R),D,T), coo(R,C ,T-1), not nextto(C ,D,_).
 
-% Philomenas idea
-%coo(R,C,T) :- not oldmove(R,_,T), coo(R,C,T-1), time(T).
-
 % works better without for now
 
 coo(R,C,T) :- wait(R,T), coo(R,C,T-1), time(T).
-%coo(R,C,T) :- not move(robot(R),_,T-1), coo(R,C,T-1), time(T-1).
+coo(R,C,T) :- not timemove(R,T), coo(R,C,T-1), time(T-1), robot(R), robot(S), R<S.
 
 % give priority to the first robot and copy its old path
 { move(robot(R),D,T) }  :- oldmove(R,D,T).
-move(robot(R),D,T)      :- conflict(R,S,_), oldmove(R,D,T).
+move(robot(R),D,T)      :- conflict(R,S,_), oldmove(R,D,T). 
 
 
 % copy all old moves for the second robot up to the first conflict
@@ -42,8 +40,3 @@ move(robot(S),D,T+Z) :- conflict(R,S,_), oldmove(S,D,T), Z = #sum{1: wait(S,T')}
 
 % take different actions depending on the type of the conflict
 % vertex_conflict: second robot waits for one time point
-
-%move(robot(A),D,T):- oldmove(A,D,T), not conflict(_,_,_).
-
-% last idea: Produce nextmove always one stop ahead of time, to first check for conflicts
-% it is enough to have nextmove for robot S
