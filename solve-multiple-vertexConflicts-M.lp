@@ -21,7 +21,6 @@ vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), 
 coo(R,C,T) :- move(robot(R),D,T), coo(R,C',T-1), nextto(C',D,C).
            :- move(robot(R),D,T), coo(R,C ,T-1), not nextto(C ,D,_).
 
-% works better without for now
 
 coo(R,C,T) :- wait(R,T), coo(R,C,T-1), time(T).
 coo(R,C,T) :- not timemove(R,T), coo(R,C,T-1), time(T-1), robot(R), robot(S), R<S.
