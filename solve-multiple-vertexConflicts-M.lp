@@ -12,7 +12,9 @@ coo(R,C,T) :- position(robot(R),C,T).
 
 % - conflicts -------------------------------------------------------------------
 conflict(R,S,T)         :- vertex_conflict(R,S,T).
-vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), nextmove(S,D',T), D != D'.
+%vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), nextmove(S,D',T), D != D'.
+vertex_conflict(R,S,T+Z)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), nextmove(S,D',T), D != D', numwait(Z,T-1).
+
 
 % - coo/3 -----------------------------------------------------------------------
 % to have position of robots at every timepoint
@@ -34,7 +36,9 @@ nextcoo(S,C,T)  :- nextmove(S,D,T), coo(R,C',T-1), nextto(C',D,C).
 
 wait(S,T)   :- conflict(R,S,T).
 % check this!!!
-move(robot(S),D,T+Z) :- conflict(R,S,_), oldmove(S,D,T), Z = #sum{1: wait(S,T')}, T >= T', time(T'), time(Z).
+%move(robot(S),D,T+Z) :- vertex_conflict(R,S,_), oldmove(S,D,T), Z = #count{S,T': wait(S,T'), T>=T'}, time(T'), time(Z).
+numwait(Z,T) :- Z = #count{S,T': wait(S,T'), T>=T'}, time(T).
+move(robot(S),D,T+Z) :- numwait(Z,T), oldmove(S,D,T), vertex_conflict(R,S,_).
 
 % take different actions depending on the type of the conflict
 % vertex_conflict: second robot waits for one time point
