@@ -13,6 +13,7 @@ coo(R,C,T) :- position(robot(R),C,T).
 % - conflicts -------------------------------------------------------------------
 conflict(R,S,T)         :- vertex_conflict(R,S,T).
 vertex_conflict(R,S,T)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), nextmove(S,D',T), D != D'.
+%vertex_conflict(R,S,T+Z)  :- R<S, coo(R,C,T), nextcoo(S,C,T), move(robot(R),D,T), nextmove(S,D',T), D != D', numwait(Z,T-1).
 
 
 % - coo/3 -----------------------------------------------------------------------
@@ -30,14 +31,15 @@ move(robot(R),D,T)      :- conflict(R,S,_), oldmove(R,D,T).
 
 
 % copy all old moves for the second robot up to the first conflict
-nextmove(S,D,T) :- move(robot(S),D,T-1), oldmove(S,D,T).
-nextcoo(S,C,T)  :- nextmove(S,D,T), coo(R,C',T-1), nextto(C',D,C).
+nextmove(R,D,1) :- oldmove(R,D,1).
 
-% when and how long to wait
+nextmove(R,D,T) :- move(robot(R),D,T-1), oldmove(R,D,T).
+nextcoo(R,C,T)  :- nextmove(R,D,T), coo(R,C',T-1), nextto(C',D,C).
+
 wait(S,T)   :- conflict(R,S,T).
+% check this!!!
+%move(robot(S),D,T+Z) :- vertex_conflict(R,S,_), oldmove(S,D,T), Z = #count{S,T': wait(S,T'), T>=T'}, time(T'), time(Z).
 numwait(Z,T) :- Z = #count{S,T': wait(S,T'), T>=T'}, time(T).
-
-% moves of the second robot since the first conflict
 move(robot(S),D,T+Z) :- numwait(Z,T), oldmove(S,D,T), not wait(S,T+Z), vertex_conflict(R,S,_).
 move(robot(S),D,T+Z+1) :- numwait(Z,T), oldmove(S,D,T), wait(S,T+Z), vertex_conflict(R,S,_).
 
