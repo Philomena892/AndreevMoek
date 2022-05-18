@@ -4,7 +4,7 @@ Internship at University of Potsdam about MAPF (multi-agent path finding) with A
 
 ## Examples
 
-This directory cotains example instaces to test code.
+This directory contains example instances to test code.
 
 ## Images
 
