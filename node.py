@@ -14,12 +14,6 @@ class Node():
         self.left_child = None
         self.right_child = None
 
-    def low_level_search():
-        return solution
-
-    def check_solution(self):
-        return BOOL
-
 # TODO think about how to make this more efficient
 
 def get_children(parent, first_conflict):
@@ -62,7 +56,7 @@ def main(self, input_file):
     except FileNotFoundError:
         print("The specified file could not be found.")
         return
-    #global file_string
+    #global file_string ?
     file_string = ''
     for line in lines: 
         file_string += line.rstrip() 
@@ -97,6 +91,6 @@ def main(self, input_file):
         l_child, r_child = get_children(current, first_conflict.arguments)
         queue.put((l_child.cost, l_child))
         queue.put((r_child.cost, r_child))
-        
+
 # TODO what happens when queue is empty?
 # TODO check the solution somehow different than checking for first_conflict
