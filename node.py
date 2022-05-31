@@ -85,6 +85,7 @@ def main(self, input_file):
         first_conflict = (current.model.symbols(terms=True))[0]
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
+            print("model: " + str(current.model))
             return True
             # TODO write to file here
 
