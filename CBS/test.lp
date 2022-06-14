@@ -1,4 +1,4 @@
-#include "input.lp".
+#include "../input.lp".
 
 oldmove(R,D,T) :- occurs(object(robot, R), action(move, D), T).
 
@@ -27,16 +27,12 @@ newConstraint(R,C,T) :- position(R,C,T), constraint(R,C,T).
 
 #minimize{T : move(R,D,T)}.
 
-%cost(Z) :- Z = #count{R,T : move(R,D,T)}.
-%cost(Z) :- move(R,D,Z), not move(R,_,T), time(T), T<Z.
-%#minimize{Z : cost(Z)}.
-
 % check for valid routes
 newPosition(R,C,0) :- position(robot(R),C,0), newConstraint(R,_,_).
 newPosition(R,C,T)  :- move(R,D,T), newPosition(R,C',T-1),     nextto(C',D,C).
                     :- move(R,D,T), newPosition(R,C ,T-1), not nextto(C ,D,_).
 
-newPosition(R,C,T) :- newPosition(R,C,T-1), not move(R,_,T), newConstraint(R,_,_), time(T), robot(R).
+newPosition(R,C,T) :- newPosition(R,C,T-1), not move(R,_,T), time(T).
 :- newPosition(R,C,T), constraint(R,C,T). 
 
 % goal fullfilled
@@ -46,13 +42,19 @@ newPosition(R,C,T) :- newPosition(R,C,T-1), not move(R,_,T), newConstraint(R,_,_
 
 % vertex conflicts
 conflict(R,S,C,T) :- position(R,C,T), position(S,C,T), R<S, not newConstraint(R,_,_), not newConstraint(S,_,_), T>0.
-conflict(R,S,C,T) :- newPosition(R,C,T), position(S,C,T), R!=S, not newConstraint(S,_,_), T>0.
+conflict(R,S,C,T) :- newPosition(R,C,T), position(S,C,T), not newConstraint(S,_,_), T>0.
 
 % edge conflicts
 conflict(R,S,C,T) :- position(R,C,T), position(R,C',T-1), position(S,C',T), position(S,C,T-1), R<S, not newConstraint(R,_,_), not newConstraint(S,_,_), T>0.
-conflict(R,S,C,T) :- newPosition(R,C,T), newPosition(R,C',T-1), position(S,C',T), position(S,C,T-1), R!=S, not newConstraint(S,_,_), T>0.
+conflict(R,S,C,T) :- newPosition(R,C,T), newPosition(R,C',T-1), position(S,C',T), position(S,C,T-1), not newConstraint(S,_,_), T>0.
 
 % first conflict
-%first_conflict(R,S,C,T) :- conflict(R,S,C,T), not conflict(_,_,_,T'), time(T'), T'<T, not conflict(R',_,_,T), robot(R'), R'<R, not conflict(_,S',_,T), robot(S'), S'<S.
 1{first_conflict(R,S,C,T) : conflict(R,S,C,T)}1 :- conflict(_,_,_,_).
-#minimize{T : first_conflict(R,S,C,T)}.
+:- first_conflict(_,_,_,T), conflict(_,_,_,T'), T'<T.
+
+#show.
+#show init/2.
+#show occurs(object(robot,R), action(move,D),     T) :    move(R,D,T).
+#show occurs(object(robot,R), action(move,D),     T) :    oldmove(R,D,T), not newConstraint(R,_,_).
+#show conflict(R,S,C,T) : conflict(R,S,C,T).
+#show first_conflict(R,S,C,T) : first_conflict(R,S,C,T).
