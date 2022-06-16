@@ -82,17 +82,20 @@ def main(input_file):
     ctl = clingo.Control()
 
     ctl.add("base", [], asp_file)
-    ctl.add("base", [], file_string)    
+    ctl.add("base", [], file_string)
+    ctl.add("base", [], "#show. #show move(R,D,T) : occurs(object(robot,R), action(move,D),     T).")
 
     ctl.ground([("base", [])])
 
     with ctl.solve(yield_=True) as handle:
         model = next(iter(handle))
-        root.problem = list(model.symbols(terms=True))
+        root.problem = list(model.symbols(shown=True))#(terms=True))
+        print("first try of printing root.problem: " + str(root.problem))
+
         root.cost = len(list(model.symbols(terms=True))) - 1    # -1 for first_conflict
     
     print("root.cost: " + str(root.cost))
-    print("root.problem: " + str(root.problem))
+    # print("root.problem: " + str(root.problem))
     print("first elem of root.problem: " + str(list(root.problem)[0]))
 
     # make priority queue
@@ -108,7 +111,7 @@ def main(input_file):
         print("first_conflict.name: " + str(first_conflict.name))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
-            print("model: " + str(current[1].problem))
+            # print("model: " + str(current[1].problem))
             return True
             # TODO write to file here
 
