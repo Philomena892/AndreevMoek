@@ -4,6 +4,7 @@ from typing import List
 import clingo
 from sys import argv
 import os.path
+import argparse
 
 class Node():
     def __init__(self, constraints):
@@ -48,42 +49,43 @@ def get_children(parent, first_conflict):
     
     return left_child, right_child
 
-
-def main(input_file):
-    
-    # read input file
+def read_file(file_name):
     try:
-        with open(input_file) as file_object:
+        with open(file_name) as file_object:
             lines = file_object.readlines()
     except FileNotFoundError:
-        print("The specified file could not be found.")
+        print(f"The file {file_name} could not be found.")
         return
-    #global file_string ?
     file_string = ''
     for line in lines: 
         file_string += line.rstrip() 
-        file_string += " "              # unnecessary, maybe make problem global variable?
+        file_string += " " 
+    return file_string
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i','--input', type=str, required=True, help="ASP file containing robot plans")
+
     
-    # read test.lp (ASP part of the solution)
-    try:
-        with open("test.lp") as file_object:
-            lines = file_object.readlines()
-    except FileNotFoundError:
-        print("The specified file could not be found.")
-        return
-    asp_file = ''
-    for line in lines: 
-        asp_file += line.rstrip() 
-        asp_file += " "              
+
+    args = parser.parse_args()
+
+    # read input file with problem
+    problem_file = read_file(args.input)
+    
+    # read test.lp (low level search implementation)
+    asp_file = read_file("test.lp")
+             
 
     # initialize root node + construct model for it
     root = Node([])
-    root.problem = file_string
+    root.problem = problem_file
 
     ctl = clingo.Control()
 
     ctl.add("base", [], asp_file)
-    ctl.add("base", [], file_string)
+    ctl.add("base", [], problem_file)
     ctl.add("base", [], "#show. #show move(R,D,T) : occurs(object(robot,R), action(move,D),     T).")
 
     ctl.ground([("base", [])])
@@ -128,10 +130,8 @@ def main(input_file):
 # TODO what happens when queue is empty?
 # TODO check the solution somehow different than checking for first_conflict
 
-file = argv[1]
-print("sys.argv[1]: " + str(file))
 
+if __name__ == "__main__":
+    main()
 
-main(file)
-print()
 print("We made it!")
