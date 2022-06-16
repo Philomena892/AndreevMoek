@@ -3,6 +3,7 @@ from queue import PriorityQueue
 from typing import List
 import clingo
 from sys import argv
+import os.path
 
 class Node():
     def __init__(self, constraints):
@@ -103,19 +104,24 @@ def main(input_file):
     queue.put((root.cost, root))
 
     while queue:
-        current = queue.get()
+        current = queue.get()[1]
 
         # check whether there is a first conflict
-        first_conflict = (list(current[1].problem))[0]
+        first_conflict = (list(current.problem))[0]
         print("first_conflict: " + str(first_conflict))
         print("first_conflict.name: " + str(first_conflict.name))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
-            # print("model: " + str(current[1].problem))
-            return True
-            # TODO write to file here
+            
+            # write to output file
+            mode = 'w' if os.path.exists("output.lp") else 'a'
+            with open("output.lp", mode, encoding='utf-8') as file:
+                for elem in current.problem:
+                    file.write(str(elem) + ". ")
 
-        l_child, r_child = get_children(current, first_conflict.arguments)
+            return True
+
+        # l_child, r_child = get_children(current, first_conflict.arguments)
         #queue.put((l_child.cost, l_child))
         #queue.put((r_child.cost, r_child))
 
