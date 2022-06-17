@@ -5,11 +5,21 @@ import clingo
 from sys import argv
 import os.path
 import argparse
+from clingo.symbol import Function
+import heapq
+
+from dataclasses import dataclass, field
+from typing import Any
+
+@dataclass(order=True)
+class PrioritizedItem:
+    priority: int
+    item: Any=field(compare=False)
 
 class Node():
-    def __init__(self, constraints):
+    def __init__(self):
         # calculate from passed arguments
-        self.constraints = constraints      # string of all constraints
+        self.constraints = []      # list of all constraints
         self.problem = ""                   # string of model
         self.cost = 0
 
@@ -19,33 +29,59 @@ class Node():
 
 # TODO think about how to make this more efficient
 
-def get_children(parent, first_conflict):
+def make_string(list):
+    string = ""
+    for elem in list:
+        if elem.name == "first_conflict":
+            print("first conflict found")
+            continue
+        string += str(elem) + ". "
+    return string
+
+def get_children(parent, first_conflict, shows):
     # make constraint(Robot,Coordinates,Timestep) 
     # first_conflict has format first_conflict(Robot1, Robot2, Coordinates, Timestep)
-    left_constraint = "constraint(" + str(first_conflict[0]) + "," + str(first_conflict[2]) + "," + str(first_conflict[3]) + ")."
-    right_constraint = "constraint(" + str(first_conflict[1]) + "," + str(first_conflict[2]) + "," + str(first_conflict[3]) + ")."
+    left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[3]], True)
+    right_constraint = Function("constraint", [first_conflict[1], first_conflict[2], first_conflict[3]], True)
     
-    left_child = Node(parent.constraints + left_constraint)
-    right_child = Node(parent.constraints + right_constraint)
+    left_child = Node()
+    left_child.constraints = parent.constraints.copy()
+    left_child.constraints.append(left_constraint)
 
-    left_child.problem = parent.problem + left_constraint
-    right_child.problem = parent.problem + right_constraint
+    right_child = Node()
+    right_child.constraints = parent.constraints.copy()
+    right_child.constraints.append(right_constraint)
 
+    problem = make_string(parent.problem)
+    lconstraints = make_string(left_child.constraints)
+
+    # left_child
     ctl_l = clingo.Control()
-    ctl_l.add("base", [], left_child.problem)
+    ctl_l.add("base", [], problem)
+    ctl_l.add("base", [], lconstraints)
+    ctl_l.add("base", [], shows)
+
     ctl_l.ground([("base", [])])
     with ctl_l.solve(yield_=True) as handle:
-        left_child.model = next(iter(handle))
+        model = next(iter(handle))
+        left_child.problem = list(model.symbols(shown=True))
 
-    left_child.cost = len(list(left_child.model.symbols(terms=True))) - 1
+        # total number of moves + some constant
+        left_child.cost = len(list(model.symbols(shown=True)))
 
+    rconstraints = make_string(right_child.constraints)
+
+    # right_child
     ctl_r = clingo.Control()
-    ctl_r.add("base", [], right_child.problem)
+    ctl_r.add("base", [], problem)
+    ctl_r.add("base", [], rconstraints)
+    ctl_r.add("base", [], shows)  
+    
     ctl_r.ground([("base", [])])
-    with ctl_r.solve(yield_=True) as handle:
-        right_child.model = next(iter(handle))
-
-    right_child.cost = len(list(right_child.model.symbols(terms=True))) - 1
+    with ctl_l.solve(yield_=True) as handle:
+        model = next(iter(handle))
+        right_child.problem = list(model.symbols(shown=True))
+        right_child.cost = len(list(model.symbols(shown=True)))
     
     return left_child, right_child
 
@@ -79,39 +115,48 @@ def main():
              
 
     # initialize root node + construct model for it
-    root = Node([])
+    root = Node()
     root.problem = problem_file
 
     ctl = clingo.Control()
 
+    shows = '''#show. 
+            #show occurs(object(robot,R), action(move,D),     T) : move(R,D,T). 
+            #show occurs(object(robot,R), action(move,D),     T) :    oldmove(R,D,T), not newConstraint(R).
+            #show first_conflict(R,S,C,T) : first_conflict(R,S,C,T).
+            #show init/2.'''
+
     ctl.add("base", [], asp_file)
     ctl.add("base", [], problem_file)
-    ctl.add("base", [], "#show. #show move(R,D,T) : occurs(object(robot,R), action(move,D),     T).")
+    ctl.add("base", [], shows)
 
     ctl.ground([("base", [])])
 
     with ctl.solve(yield_=True) as handle:
         model = next(iter(handle))
-        root.problem = list(model.symbols(shown=True))#(terms=True))
-        print("first try of printing root.problem: " + str(root.problem))
+        root.problem = list(model.symbols(shown=True))#(shown=True))
 
-        root.cost = len(list(model.symbols(terms=True))) - 1    # -1 for first_conflict
+        # total number of moves
+        root.cost = len(list(model.symbols(shown=True)))    # -1 for first_conflict
     
-    print("root.cost: " + str(root.cost))
-    # print("root.problem: " + str(root.problem))
-    print("first elem of root.problem: " + str(list(root.problem)[0]))
+    for i in range(len(root.problem)):
+        if root.problem[i].name == "first_conflict":
+            conflict_index = i
+            break
 
     # make priority queue
     queue = PriorityQueue()
-    queue.put((root.cost, root))
+    queue.put(PrioritizedItem(root.cost, root))
 
-    while queue:
-        current = queue.get()[1]
+    while queue.empty() == False:
+        current = queue.get().item
 
         # check whether there is a first conflict
-        first_conflict = (list(current.problem))[0]
+        print(f"current.problem: {current.problem}")
+        print(f"len of current.problem: {len(current.problem)}")
+        print(f"conflict_index: {conflict_index}")
+        first_conflict = (list(current.problem))[conflict_index]
         print("first_conflict: " + str(first_conflict))
-        print("first_conflict.name: " + str(first_conflict.name))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
             
@@ -122,10 +167,13 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-
-        # l_child, r_child = get_children(current, first_conflict.arguments)
-        #queue.put((l_child.cost, l_child))
-        #queue.put((r_child.cost, r_child))
+        
+        l_child, r_child = get_children(current, first_conflict.arguments, shows)
+        # print("l_child.constraints: " + str(l_child.constraints + "\n"))
+        # print("l_child.problem: " + str(l_child.problem) + "\n")
+        # print("l_child.cost: " + str(l_child.cost) + "\n")
+        queue.put(PrioritizedItem(l_child.cost, l_child))
+        queue.put(PrioritizedItem(r_child.cost, r_child))
 
 # TODO what happens when queue is empty?
 # TODO check the solution somehow different than checking for first_conflict
