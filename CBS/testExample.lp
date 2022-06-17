@@ -17,9 +17,3 @@ occurs(object(robot,3),action(move,(0,1)),4).
 occurs(object(robot,3),action(move,(1,0)),5). 
 occurs(object(robot,3),action(move,(0,1)),6).
 
-#show.
-% #show hello(R) : occurs(object(robot,I),action(move,D),R).
-% #show oldmove(R,D,T) : oldmove(R,D,T).
-#show conflict(R,S,C,T) : conflict(R,S,C,T).
-#show first_conflict(R,S,C,T) : first_conflict(R,S,C,T).
-#show test(1) : not newConstraint(1,_,_).
