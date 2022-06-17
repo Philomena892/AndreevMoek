@@ -38,7 +38,7 @@ def make_string(list):
         string += str(elem) + ". "
     return string
 
-def get_children(parent, first_conflict, shows):
+def get_children(parent, first_conflict, low_level, shows):
     # make constraint(Robot,Coordinates,Timestep) 
     # first_conflict has format first_conflict(Robot1, Robot2, Coordinates, Timestep)
     left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[3]], True)
@@ -59,6 +59,7 @@ def get_children(parent, first_conflict, shows):
     ctl_l = clingo.Control()
     ctl_l.add("base", [], problem)
     ctl_l.add("base", [], lconstraints)
+    ctl_l.add("base", [], low_level)
     ctl_l.add("base", [], shows)
 
     ctl_l.ground([("base", [])])
@@ -75,6 +76,7 @@ def get_children(parent, first_conflict, shows):
     ctl_r = clingo.Control()
     ctl_r.add("base", [], problem)
     ctl_r.add("base", [], rconstraints)
+    ctl_r.add("base", [], low_level)
     ctl_r.add("base", [], shows)  
     
     ctl_r.ground([("base", [])])
@@ -83,6 +85,8 @@ def get_children(parent, first_conflict, shows):
         right_child.problem = list(model.symbols(shown=True))
         right_child.cost = len(list(model.symbols(shown=True)))
     
+    print(f"left constraints: {lconstraints} \t right constraints: {rconstraints}")
+
     return left_child, right_child
 
 def read_file(file_name):
@@ -152,7 +156,7 @@ def main():
         current = queue.get().item
 
         # check whether there is a first conflict
-        print(f"current.problem: {current.problem}")
+        print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
         print(f"len of current.problem: {len(current.problem)}")
         print(f"conflict_index: {conflict_index}")
         first_conflict = (list(current.problem))[conflict_index]
@@ -168,7 +172,7 @@ def main():
 
             return True
         
-        l_child, r_child = get_children(current, first_conflict.arguments, shows)
+        l_child, r_child = get_children(current, first_conflict.arguments, asp_file, shows)
         # print("l_child.constraints: " + str(l_child.constraints + "\n"))
         # print("l_child.problem: " + str(l_child.problem) + "\n")
         # print("l_child.cost: " + str(l_child.cost) + "\n")
