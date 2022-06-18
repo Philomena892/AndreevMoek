@@ -38,54 +38,53 @@ def make_string(list):
         string += str(elem) + ". "
     return string
 
+def make_problem(input):
+    new_problem = []
+    ctl = clingo.Control()
+    ctl.add("base", [], input)
+
+    ctl.ground([("base", [])])
+    with ctl.solve(yield_=True) as handle:
+        try:
+            model = next(iter(handle))
+            new_problem = list(model.symbols(shown=True))
+        except StopIteration:
+            raise
+    return new_problem
+
 def get_children(parent, first_conflict, low_level, shows):
     # make constraint(Robot,Coordinates,Timestep) 
-    # first_conflict has format first_conflict(Robot1, Robot2, Coordinates, Timestep)
-    left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[3]], True)
-    right_constraint = Function("constraint", [first_conflict[1], first_conflict[2], first_conflict[3]], True)
+    # first_conflict has format first_conflict(Robot1, Robot2, Coordinates1, Coordinates2, Timestep)
+    left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[4]], True)
+    right_constraint = Function("constraint", [first_conflict[1], first_conflict[3], first_conflict[4]], True)
     
+    problem = make_string(parent.problem)
+
+    #left child
     left_child = Node()
     left_child.constraints = parent.constraints.copy()
     left_child.constraints.append(left_constraint)
 
+    lconstraints = make_string(left_child.constraints)
+    try:
+        left_child.problem = make_problem(problem + lconstraints + low_level + shows)
+        left_child.cost = len(left_child.problem)
+    except StopIteration:
+        raise
+
+    #right child
     right_child = Node()
     right_child.constraints = parent.constraints.copy()
     right_child.constraints.append(right_constraint)
 
-    problem = make_string(parent.problem)
-    lconstraints = make_string(left_child.constraints)
-
-    # left_child
-    ctl_l = clingo.Control()
-    ctl_l.add("base", [], problem)
-    ctl_l.add("base", [], lconstraints)
-    ctl_l.add("base", [], low_level)
-    ctl_l.add("base", [], shows)
-
-    ctl_l.ground([("base", [])])
-    with ctl_l.solve(yield_=True) as handle:
-        model = next(iter(handle))
-        left_child.problem = list(model.symbols(shown=True))
-
-        # total number of moves + some constant
-        left_child.cost = len(list(model.symbols(shown=True)))
-
     rconstraints = make_string(right_child.constraints)
-
-    # right_child
-    ctl_r = clingo.Control()
-    ctl_r.add("base", [], problem)
-    ctl_r.add("base", [], rconstraints)
-    ctl_r.add("base", [], low_level)
-    ctl_r.add("base", [], shows)  
+    try:
+        right_child.problem = make_problem(problem + rconstraints + low_level + shows)
+        right_child.cost = len(right_child.problem)
+    except StopIteration:
+        raise
     
-    ctl_r.ground([("base", [])])
-    with ctl_l.solve(yield_=True) as handle:
-        model = next(iter(handle))
-        right_child.problem = list(model.symbols(shown=True))
-        right_child.cost = len(list(model.symbols(shown=True)))
-    
-    print(f"left constraints: {lconstraints} \t right constraints: {rconstraints}")
+    print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
     return left_child, right_child
 
@@ -107,7 +106,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i','--input', type=str, required=True, help="ASP file containing robot plans")
 
-    
+       
 
     args = parser.parse_args()
 
@@ -120,28 +119,20 @@ def main():
 
     # initialize root node + construct model for it
     root = Node()
-    root.problem = problem_file
+    root.problem = problem_file #nützlich?
 
-    ctl = clingo.Control()
+    # ctl = clingo.Control()
 
     shows = '''#show. 
             #show occurs(object(robot,R), action(move,D),     T) : move(R,D,T). 
             #show occurs(object(robot,R), action(move,D),     T) :    oldmove(R,D,T), not newConstraint(R).
-            #show first_conflict(R,S,C,T) : first_conflict(R,S,C,T).
+            #show first_conflict(R,S,C,C',T) : first_conflict(R,S,C,C',T).
             #show init/2.'''
 
-    ctl.add("base", [], asp_file)
-    ctl.add("base", [], problem_file)
-    ctl.add("base", [], shows)
+    root.problem = make_problem(asp_file + problem_file + shows)
 
-    ctl.ground([("base", [])])
-
-    with ctl.solve(yield_=True) as handle:
-        model = next(iter(handle))
-        root.problem = list(model.symbols(shown=True))#(shown=True))
-
-        # total number of moves
-        root.cost = len(list(model.symbols(shown=True)))    # -1 for first_conflict
+    # total number of moves
+    root.cost = len(root.problem)
     
     for i in range(len(root.problem)):
         if root.problem[i].name == "first_conflict":
@@ -171,11 +162,11 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-        
-        l_child, r_child = get_children(current, first_conflict.arguments, asp_file, shows)
-        # print("l_child.constraints: " + str(l_child.constraints + "\n"))
-        # print("l_child.problem: " + str(l_child.problem) + "\n")
-        # print("l_child.cost: " + str(l_child.cost) + "\n")
+        try:
+            l_child, r_child = get_children(current, first_conflict.arguments, asp_file, shows)
+        except StopIteration:
+            continue
+
         queue.put(PrioritizedItem(l_child.cost, l_child))
         queue.put(PrioritizedItem(r_child.cost, r_child))
 
