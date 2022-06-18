@@ -1,5 +1,6 @@
 from ctypes.wintypes import BOOL
 from queue import PriorityQueue
+from time import perf_counter
 from typing import List
 import clingo
 from sys import argv
@@ -104,12 +105,16 @@ def read_file(file_name):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i','--input', type=str, required=True, help="ASP file containing robot plans")
-
+    parser.add_argument("input", help="ASP file containing robot plans")
+    parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
        
 
     args = parser.parse_args()
 
+    node_counter = 1
+    if args.benchmark:
+        timer = perf_counter()
+    
     # read input file with problem
     problem_file = read_file(args.input)
     
@@ -145,6 +150,7 @@ def main():
 
     while queue.empty() == False:
         current = queue.get().item
+        node_counter += 1
 
         # check whether there is a first conflict
         print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
@@ -154,6 +160,10 @@ def main():
         print("first_conflict: " + str(first_conflict))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
+
+            if args.benchmark:
+                print(f"\nrunning time: {perf_counter() - timer:0.4f}")
+                print(f"amount of nodes explored: {node_counter}\n")
             
             # write to output file
             mode = 'w' if os.path.exists("output.lp") else 'a'
@@ -169,6 +179,7 @@ def main():
 
         queue.put(PrioritizedItem(l_child.cost, l_child))
         queue.put(PrioritizedItem(r_child.cost, r_child))
+        
 
 # TODO what happens when queue is empty?
 # TODO check the solution somehow different than checking for first_conflict
