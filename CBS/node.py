@@ -24,10 +24,6 @@ class Node():
         self.problem = ""                   # string of model
         self.cost = 0
 
-        # is this really necessary???
-        self.left_child = None
-        self.right_child = None
-
 # TODO think about how to make this more efficient
 
 def make_string(list):
@@ -35,6 +31,8 @@ def make_string(list):
     for elem in list:
         if elem.name == "first_conflict":
             print("first conflict found")
+            continue
+        if elem.name == "cost":
             continue
         string += str(elem) + ". "
     return string
@@ -47,23 +45,24 @@ def make_problem(input):
     ctl.ground([("base", [])])
     with ctl.solve(yield_=True) as handle:
         try:
-            model = next(iter(handle))
-            new_problem = list(model.symbols(shown=True))
+            my_iter = iter(handle)
+            model = None
+            for model in my_iter:
+                pass
+            if model != None:
+                new_problem = list(model.symbols(shown=True))
+            else:
+                print("model is None")
+                raise StopIteration
         except StopIteration:
             raise
     return new_problem
 
-def get_children(parent, first_conflict, low_level, shows):
+def get_children(parent, first_conflict, conflict_index, low_level, shows):
     # make constraint(Robot,Coordinates,Timestep) 
     # first_conflict has format first_conflict(Robot1, Robot2, Coordinates1, Coordinates2, Timestep)
     left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[4]], True)
     right_constraint = Function("constraint", [first_conflict[1], first_conflict[3], first_conflict[4]], True)
-    
-    # shows if a child (and which) hit a StopIteration Exception
-    # 0 -> no problem
-    # 1 -> problem with left child
-    # 2 -> problem with right child
-    error_num = 0
     
     problem = make_string(parent.problem)
 
@@ -75,9 +74,9 @@ def get_children(parent, first_conflict, low_level, shows):
     lconstraints = make_string(left_child.constraints)
     try:
         left_child.problem = make_problem(problem + lconstraints + low_level + shows)
-        left_child.cost = len(left_child.problem)
+        left_child.cost = left_child.problem[conflict_index-1].arguments[0]
     except StopIteration:
-        error_num = 1
+        raise
 
     #right child
     right_child = Node()
@@ -87,13 +86,13 @@ def get_children(parent, first_conflict, low_level, shows):
     rconstraints = make_string(right_child.constraints)
     try:
         right_child.problem = make_problem(problem + rconstraints + low_level + shows)
-        right_child.cost = len(right_child.problem)
+        right_child.cost = right_child.problem[conflict_index-1].arguments[0]
     except StopIteration:
-        error_num = 2
+        raise
     
     print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
-    return left_child, right_child, error_num
+    return left_child, right_child
 
 def read_file(file_name):
     try:
@@ -138,17 +137,18 @@ def main():
             #show occurs(object(robot,R), action(move,D),     T) : move(R,D,T). 
             #show occurs(object(robot,R), action(move,D),     T) :    oldmove(R,D,T), not newConstraint(R).
             #show first_conflict(R,S,C,C',T) : first_conflict(R,S,C,C',T).
+            #show cost/1.
             #show init/2.'''
 
     root.problem = make_problem(asp_file + problem_file + shows)
 
-    # total number of moves
-    root.cost = len(root.problem)
-    
     for i in range(len(root.problem)):
-        if root.problem[i].name == "first_conflict":
-            conflict_index = i
-            break
+            if root.problem[i].name == "first_conflict":
+                conflict_index = i
+                break
+
+    # total number of moves
+    root.cost = root.problem[conflict_index-1].arguments[0]
 
     # make priority queue
     queue = PriorityQueue()
@@ -160,7 +160,7 @@ def main():
 
         # check whether there is a first conflict
         print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
-        print(f"len of current.problem: {len(current.problem)}")
+        print(f"cost of current.problem: {current.cost}")
         print(f"conflict_index: {conflict_index}")
         first_conflict = (list(current.problem))[conflict_index]
         print("first_conflict: " + str(first_conflict))
@@ -178,13 +178,13 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-        
-        l_child, r_child, num = get_children(current, first_conflict.arguments, asp_file, shows)
+        try:
+            l_child, r_child = get_children(current, first_conflict.arguments, conflict_index, asp_file, shows)
+        except StopIteration:
+            continue
 
-        if num != 1:
-            queue.put(PrioritizedItem(l_child.cost, l_child))
-        if num != 2:
-            queue.put(PrioritizedItem(r_child.cost, r_child))
+        queue.put(PrioritizedItem(l_child.cost, l_child))
+        queue.put(PrioritizedItem(r_child.cost, r_child))
         
 
 # TODO what happens when queue is empty?
