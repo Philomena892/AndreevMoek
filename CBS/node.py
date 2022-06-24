@@ -116,6 +116,7 @@ def read_file(file_name):
 def main():
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("low_level", help="ASP file with low level search")
     parser.add_argument("input", help="ASP file containing robot plans")
     parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
        
@@ -130,7 +131,7 @@ def main():
     problem_file = read_file(args.input)
     
     # read test.lp (low level search implementation)
-    asp_file = read_file("test.lp")
+    asp_file = read_file(args.low_level)
              
 
     # initialize root node + construct model for it
@@ -184,17 +185,12 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-
-        l_child, r_child, num = get_children(current, first_conflict.arguments, asp_file, shows)
+        l_child, r_child, num = get_children(current, first_conflict.arguments, conflict_index, asp_file, shows)
 
         if num != 1:
             queue.put(PrioritizedItem(l_child.cost, l_child))
         if num != 2:
             queue.put(PrioritizedItem(r_child.cost, r_child))
-       
-
-# TODO what happens when queue is empty?
-# TODO check the solution somehow different than checking for first_conflict
 
 
 if __name__ == "__main__":
