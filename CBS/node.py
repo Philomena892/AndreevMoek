@@ -64,6 +64,12 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
     left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[4]], True)
     right_constraint = Function("constraint", [first_conflict[1], first_conflict[3], first_conflict[4]], True)
     
+    # shows if a child (and which) hit a StopIteration Exception
+    # 0 -> no problem
+    # 1 -> problem with left child
+    # 2 -> problem with right child
+    error_num = 0
+    
     problem = make_string(parent.problem)
 
     #left child
@@ -76,7 +82,7 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
         left_child.problem = make_problem(problem + lconstraints + low_level + shows)
         left_child.cost = left_child.problem[conflict_index-1].arguments[0]
     except StopIteration:
-        raise
+        error_num = 1
 
     #right child
     right_child = Node()
@@ -88,11 +94,11 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
         right_child.problem = make_problem(problem + rconstraints + low_level + shows)
         right_child.cost = right_child.problem[conflict_index-1].arguments[0]
     except StopIteration:
-        raise
+        error_num = 2
     
     print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
-    return left_child, right_child
+    return left_child, right_child, error_num
 
 def read_file(file_name):
     try:
@@ -178,14 +184,14 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-        try:
-            l_child, r_child = get_children(current, first_conflict.arguments, conflict_index, asp_file, shows)
-        except StopIteration:
-            continue
 
-        queue.put(PrioritizedItem(l_child.cost, l_child))
-        queue.put(PrioritizedItem(r_child.cost, r_child))
-        
+        l_child, r_child, num = get_children(current, first_conflict.arguments, asp_file, shows)
+
+        if num != 1:
+            queue.put(PrioritizedItem(l_child.cost, l_child))
+        if num != 2:
+            queue.put(PrioritizedItem(r_child.cost, r_child))
+       
 
 # TODO what happens when queue is empty?
 # TODO check the solution somehow different than checking for first_conflict
