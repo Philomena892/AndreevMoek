@@ -1,13 +1,10 @@
-from ctypes.wintypes import BOOL
 from queue import PriorityQueue
 from time import perf_counter
-from typing import List
 import clingo
-from sys import argv
 import os.path
 import argparse
 from clingo.symbol import Function
-import heapq
+import sys
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -23,6 +20,7 @@ class Node():
         self.constraints = []      # list of all constraints
         self.problem = ""                   # string of model
         self.cost = 0
+        self.depth = 0
 
 # TODO think about how to make this more efficient
 
@@ -76,6 +74,8 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
     left_child = Node()
     left_child.constraints = parent.constraints.copy()
     left_child.constraints.append(left_constraint)
+    left_child.depth = parent.depth + 1
+
 
     lconstraints = make_string(left_child.constraints)
     try:
@@ -88,6 +88,7 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
     right_child = Node()
     right_child.constraints = parent.constraints.copy()
     right_child.constraints.append(right_constraint)
+    right_child.depth = parent.depth + 1
 
     rconstraints = make_string(right_child.constraints)
     try:
@@ -105,8 +106,7 @@ def read_file(file_name):
         with open(file_name) as file_object:
             lines = file_object.readlines()
     except FileNotFoundError:
-        print(f"The file {file_name} could not be found.")
-        return
+        sys.exit(f"The file {file_name} could not be found.")
     file_string = ''
     for line in lines: 
         file_string += line.rstrip() 
@@ -130,13 +130,17 @@ def main():
     # read input file with problem
     problem_file = read_file(args.input)
     
-    # read test.lp (low level search implementation)
+    # read low level search implementation
     asp_file = read_file(args.low_level)
+
+    # read first iteration asp file
+    first_plan = read_file("first_iteration.lp")
              
 
     # initialize root node + construct model for it
     root = Node()
     root.problem = problem_file #nützlich?
+    root.depth = 0
 
     # ctl = clingo.Control()
 
@@ -147,7 +151,7 @@ def main():
             #show cost/1.
             #show init/2.'''
 
-    root.problem = make_problem(asp_file + problem_file + shows)
+    root.problem = make_problem(first_plan + problem_file + shows)
 
     for i in range(len(root.problem)):
             if root.problem[i].name == "first_conflict":
@@ -176,7 +180,8 @@ def main():
 
             if args.benchmark:
                 print(f"\nrunning time: {perf_counter() - timer:0.4f}")
-                print(f"amount of nodes explored: {node_counter}\n")
+                print(f"amount of nodes explored: {node_counter}")
+                print(f"length of path through the tree: {current.depth}\n")
             
             # write to output file
             mode = 'w' if os.path.exists("output.lp") else 'a'
