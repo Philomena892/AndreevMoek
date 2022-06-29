@@ -135,23 +135,25 @@ def main():
 
     # read first iteration asp file
     first_plan = read_file("first_iteration.lp")
-             
+
+    init_shows = '''#show.
+                    #show init/2.
+                    #show occurs(object(robot,R), action(move,D), T) :    move(robot(R),D,T).'''
+
+    shows = '''#show. 
+               #show occurs(object(robot,R), action(move,D), T) : move(R,D,T). 
+               #show occurs(object(robot,R), action(move,D), T) :    oldmove(R,D,T), not newConstraint(R).
+               #show first_conflict(R,S,C,C',T) : first_conflict(R,S,C,C',T).
+               #show cost/1.
+               #show init/2.'''
 
     # initialize root node + construct model for it
     root = Node()
-    root.problem = problem_file #nützlich?
     root.depth = 0
 
-    # ctl = clingo.Control()
+    problem_file = make_problem(first_plan + problem_file + init_shows)
 
-    shows = '''#show. 
-            #show occurs(object(robot,R), action(move,D),     T) : move(R,D,T). 
-            #show occurs(object(robot,R), action(move,D),     T) :    oldmove(R,D,T), not newConstraint(R).
-            #show first_conflict(R,S,C,C',T) : first_conflict(R,S,C,C',T).
-            #show cost/1.
-            #show init/2.'''
-
-    root.problem = make_problem(first_plan + problem_file + shows)
+    root.problem = make_problem(make_string(problem_file) + asp_file + shows)
 
     for i in range(len(root.problem)):
             if root.problem[i].name == "first_conflict":
