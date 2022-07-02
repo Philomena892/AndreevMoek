@@ -8,7 +8,7 @@
 ## warehouse problems
 The following examples try to simulate more realistic warehouse-scenarios. There are three categories:
 
-# warehouse1_X.lp
+### warehouse1_X.lp
 
 warehouse1_1.lp
 
