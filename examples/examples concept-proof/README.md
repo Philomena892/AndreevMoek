@@ -34,3 +34,8 @@ This file is a vertex-confict with much space to see how it will be solved in an
 This file contains a small passage and three robot who want to cross it in different directions. Multiple vertex- and edge-conflicts have to be solved.
 
 ![bottleneck.lp](../../images/bottleneck.png)
+
+## easy_unsat.lp
+Very small example with no possible solution.
+
+![easy_unsat.lp](../../images/easy_unsat.png)
