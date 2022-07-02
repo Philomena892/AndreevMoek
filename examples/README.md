@@ -9,6 +9,7 @@
 The following examples try to simulate more realistic warehouse-scenarios. There are three categories:
 
 ### warehouse1_X.lp
+Robots come from two sides (not too close to each other). There are 3 lines, in which there can be shelfs for the robots. Shelf-lines can be passed.
 
 warehouse1_1.lp
 
@@ -22,7 +23,8 @@ warehouse1_3.lp
 
 ![warehouse1_3.lp](../images/warehouse1_3.png)
 
-# warehouse2_X.lp
+### warehouse2_X.lp
+Robots come from all directions, as far away from each other as possible to simulate random directions. There are 3 lines, in which there can be shelfs for the robots. Shelf-lines can be passed.
 
 warehouse2_1.lp
 
@@ -36,7 +38,8 @@ warehouse2_3.lp
 
 ![warehouse2_3.lp](../images/warehouse2_3.png)
 
-# warehouse3_X.lp
+### warehouse3_X.lp
+Robots come from two sides (not too close to each other). There are 2 lines next to which the shelfs can be positioned. The lines can not be passed. Additional to the side-passages, there is another passage in the middle of the lines.
 
 warehouse3_1.lp
 
