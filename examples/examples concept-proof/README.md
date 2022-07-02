@@ -28,7 +28,7 @@ This file contains plans for a very simple edge conflict.
 ## wide_and_simple.lp
 This file is a vertex-confict with much space to see how it will be solved in an open eviroment.
 
-![wide_and-simple.lp](../../images/wide-and-simple.png)
+![wide_and_simple.lp](../../images/wide_and_simple.png)
 
 ## bottleneck.lp
 This file contains a small passage and three robot who want to cross it in different directions. Multiple vertex- and edge-conflicts have to be solved.
