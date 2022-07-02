@@ -24,3 +24,13 @@ In this case a vertex conflict cannot be avoided simply by waiting - it is neces
 This file contains plans for a very simple edge conflict.
 
 ![easy_edgeConflict.lp](../../images/easy_edgeConflict.png)
+
+## wide_and_simple.lp
+This file is a vertex-confict with much space to see how it will be solved in an open eviroment.
+
+![wide_and-simple.lp](../../images/wide-and-simple.png)
+
+## bottleneck.lp
+This file contains a small passage and three robot who want to cross it in different directions. Multiple vertex- and edge-conflicts have to be solved.
+
+![bottleneck.lp](../../images/bottleneck.png)
