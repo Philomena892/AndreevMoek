@@ -1,26 +1,51 @@
 # example instances
 
-## easy_cross.lp
-This file contains the easiest vertex conflict imaginable with two robots.
+## big_problem.lp
+16 robots try to cross a crossroad at the same time. This is not the setup for a joke, but a very serious problem. Hard to solve, so expect a long runtime.
 
-![easy_cross.lp](../images/easy_cross.png)
+![big_problem.lp](../images/big_problem.png)
 
-## double_cross.lp
-Tests, whether two consecutive vertex conflicts can be solved - no dodging possible.
+## warehouse problems
+The following examples try to simulate more realistic warehouse-scenarios. There are three categories:
 
-![double_cross.lp](../images/double_cross.png)
+# warehouse1_X.lp
 
-## three_robots.lp
-This file tests the programs behaviour if there are two collisions with a total of three robots.
+warehouse1_1.lp
 
-![three_robots.lp](../images/three_robots.png)
+![warehouse1_1.lp](../images/warehouse1_1.png)
 
-## timingConflict.lp
-In this case a vertex conflict cannot be avoided simply by waiting - it is necessary to look at past moves.
+warehouse1_2.lp
 
-![timingConflict.lp](../images/timingConflict.png)
+![warehouse1_2.lp](../images/warehouse1_2.png)
 
-## easy_edgeConflict.lp
-This file contains plans for a very simple edge conflict.
+warehouse1_3.lp
 
-![easy_edgeConflict.lp](../images/easy_edgeConflict.png)
+![warehouse1_3.lp](../images/warehouse1_3.png)
+
+# warehouse2_X.lp
+
+warehouse2_1.lp
+
+![warehouse2_1.lp](../images/warehouse2_1.png)
+
+warehouse2_2.lp
+
+![warehouse2_2.lp](../images/warehouse2_2.png)
+
+warehouse2_3.lp
+
+![warehouse2_3.lp](../images/warehouse2_3.png)
+
+# warehouse3_X.lp
+
+warehouse3_1.lp
+
+![warehouse3_1.lp](../images/warehouse3_1.png)
+
+warehouse3_2.lp
+
+![warehouse3_2.lp](../images/warehouse3_2.png)
+
+warehouse3_3.lp
+
+![warehouse3_3.lp](../images/warehouse3_3.png)
