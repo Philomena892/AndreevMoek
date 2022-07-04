@@ -17,7 +17,7 @@ position(R,C,T) :- position(R,C,T-1), not move(R,_,T), isRobot(R), time(T).
 moveto(C',C,T) :- nextto(C',D,C), position(R,C',T-1), move(R,D,T).
 :- moveto(C',C,T), moveto(C,C',T), C < C'.
 
-processed(A,robot(R)) :- ordered(O,A), shelved(shelf(S),A), position(shelf(S),C,0), position(robot(R),C,horizon), R=S.
-processed(A)   :- processed(A,robot(R)).
+moveSum(Z) :- Z=#sum{T : move(R,D,T)}.
+#minimize{Z : moveSum(Z)}.
 
-:- ordered(O,A), not processed(A).
+:- position(shelf(S),C,0), position(robot(S),C',horizon), C!=C'.
