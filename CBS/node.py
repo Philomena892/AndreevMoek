@@ -67,6 +67,7 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
     # 0 -> no problem
     # 1 -> problem with left child
     # 2 -> problem with right child
+    # 3 -> problem with both
     error_num = 0
     
     problem = make_string(parent.problem)
@@ -96,7 +97,8 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
         right_child.problem = make_problem(problem + rconstraints + low_level + shows)
         right_child.cost = right_child.problem[conflict_index-1].arguments[0]
     except StopIteration:
-        error_num = 2
+        if error_num == 1: error_num = 3
+        else: error_num = 2
     
     print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
@@ -154,7 +156,6 @@ def main():
                 break
 
     # total number of moves
-    #root.cost = root.problem[conflict_index-1].arguments[0]
     root.cost = 0
 
     # make priority queue
@@ -188,11 +189,17 @@ def main():
             return True
         l_child, r_child, num = get_children(current, first_conflict.arguments, conflict_index, asp_file, shows)
 
+        if num == 3: break
         if num != 1:
             queue.put(PrioritizedItem(l_child.cost, l_child))
         if num != 2:
             queue.put(PrioritizedItem(r_child.cost, r_child))
-
+    
+    print("\nNo solution found!")
+    if args.benchmark:
+        print(f"\nrunning time: {perf_counter() - timer:0.4f}")
+        print(f"amount of nodes explored: {node_counter}")
+        print(f"length of path through the tree: {current.depth}\n")
 
 if __name__ == "__main__":
     main()
