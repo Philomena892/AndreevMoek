@@ -1,6 +1,6 @@
 #include "input.lp".
 
-#const horizon=15.
+#const horizon=25.
 time(1..horizon).
 
 direction((X,Y)) :- X=-1..1, Y=-1..1, |X+Y|=1.
@@ -19,7 +19,7 @@ newConstraint(R) :- position(R,C,T), constraint(R,C,T).
 
 { move(R,D,T) : direction(D) } 1 :- time(T), newConstraint(R).
 
-cost(N+N') :- moveSum(N'), N=#sum{T : oldmove(R,D,T)}.
+cost(N+N'-N'') :- moveSum(N'), old_cost(N), N''=#sum{T : oldmove(R,D,T)}, newConstraint(R).
 
 moveSum(Z) :- Z=#sum{T : move(R,D,T)}.
 #minimize{Z : moveSum(Z)}.
