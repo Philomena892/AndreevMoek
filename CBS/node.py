@@ -31,6 +31,7 @@ def make_string(list):
             print("first conflict found")
             continue
         if elem.name == "cost":
+            string += "old_" + str(elem) + ". "
             continue
         string += str(elem) + ". "
     return string
@@ -128,17 +129,10 @@ def main():
         timer = perf_counter()
     
     # read input file with problem
-    problem_file = read_file(args.input)
+    problem_file = read_file(args.input) + " cost(0)."
     
     # read low level search implementation
     asp_file = read_file(args.low_level)
-
-    # read first iteration asp file
-    first_plan = read_file("first_iteration.lp")
-
-    init_shows = '''#show.
-                    #show init/2.
-                    #show occurs(object(robot,R), action(move,D), T) :    move(robot(R),D,T).'''
 
     shows = '''#show. 
                #show occurs(object(robot,R), action(move,D), T) : move(R,D,T). 
@@ -151,9 +145,8 @@ def main():
     root = Node()
     root.depth = 0
 
-    problem_file = make_problem(first_plan + problem_file + init_shows)
+    root.problem = make_problem(asp_file + problem_file + shows)
 
-    root.problem = make_problem(make_string(problem_file) + asp_file + shows)
 
     for i in range(len(root.problem)):
             if root.problem[i].name == "first_conflict":
@@ -161,7 +154,8 @@ def main():
                 break
 
     # total number of moves
-    root.cost = root.problem[conflict_index-1].arguments[0]
+    #root.cost = root.problem[conflict_index-1].arguments[0]
+    root.cost = 0
 
     # make priority queue
     queue = PriorityQueue()
