@@ -16,7 +16,7 @@ position(R,C,T) :- move(R,D,T), position(R,C',T-1),     nextto(C',D,C).
 
 position(R,C,T) :- position(R,C,T-1), not move(R,_,T), time(T).
 
-1{lastmove(R,T) : time(T)}1 :- isRobot(R).
+1{lastmove(R,T) : move(R,_,T)}1 :- isRobot(R).
 :- lastmove(R,T), move(R,_,T'), T'>T.
 
 #minimize{T,R : lastmove(R,T)}.
