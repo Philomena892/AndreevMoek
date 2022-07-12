@@ -131,6 +131,7 @@ def benchmark(current, node_counter, timer, last_move=0, move_sum=0):
             move_sum += 1
     print(f"timesteps taken until completion of problem: {last_move}")
     print(f"amount of moves made in total: {move_sum}\n")
+    return
 
 
 def main():
