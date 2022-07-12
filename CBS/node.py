@@ -116,6 +116,23 @@ def read_file(file_name):
         file_string += " " 
     return file_string
 
+def benchmark(current, node_counter, timer, last_move=0, move_sum=0):
+
+    print("\n---BENCHMARK----------------------------------")           
+    print(f"running time: {perf_counter() - timer:0.4f}")
+    print(f"amount of nodes explored: {node_counter}")
+    print(f"length of path through the tree: {current.depth}")
+    last_move = 0
+    move_sum = 0
+    for elem in current.problem:
+        if elem.name == "occurs":
+            if elem.arguments[2].number > last_move: # find the time of the last move
+                last_move = elem.arguments[2].number
+            move_sum += 1
+    print(f"timesteps taken until completion of problem: {last_move}")
+    print(f"amount of moves made in total: {move_sum}\n")
+
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -183,9 +200,8 @@ def main():
             print("no first_conflict found")
 
             if args.benchmark:
-                print(f"\nrunning time: {perf_counter() - timer:0.4f}")
-                print(f"amount of nodes explored: {node_counter}")
-                print(f"length of path through the tree: {current.depth}\n")
+                benchmark(current, node_counter, timer)
+                
             
             # write to output file
             mode = 'w' if os.path.exists("output.lp") else 'a'
@@ -204,9 +220,7 @@ def main():
     
     print("\nNo solution found!")
     if args.benchmark:
-        print(f"\nrunning time: {perf_counter() - timer:0.4f}")
-        print(f"amount of nodes explored: {node_counter}")
-        print(f"length of path through the tree: {current.depth}\n")
+        benchmark(current, node_counter, timer)
 
 if __name__ == "__main__":
     main()
