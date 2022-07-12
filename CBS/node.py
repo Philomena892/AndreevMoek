@@ -119,9 +119,9 @@ def read_file(file_name):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("low_level", help="ASP file with low level search")
     parser.add_argument("input", help="ASP file containing robot plans")
     parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
+    parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
        
 
     args = parser.parse_args()
@@ -131,10 +131,17 @@ def main():
         timer = perf_counter()
     
     # read input file with problem
-    problem_file = read_file(args.input) + " cost(0)."
+    problem_file = read_file(args.input)
     
     # read low level search implementation
-    asp_file = read_file(args.low_level)
+    lowlevel = "lowlevel.lp"
+    if args.greedy:
+        lowlevel = "lowlevel_greedy.lp"
+    else:
+        # add the cost of root
+        problem_file += " cost(0)."
+
+    asp_file = read_file(lowlevel)
 
     shows = '''#show. 
                #show occurs(object(robot,R), action(move,D), T) : move(R,D,T). 
