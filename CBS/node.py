@@ -1,3 +1,5 @@
+from ast import arg
+import pathlib
 from queue import PriorityQueue
 from time import perf_counter
 import clingo
@@ -5,6 +7,7 @@ import os.path
 import argparse
 from clingo.symbol import Function
 import sys
+import csv
 
 from dataclasses import dataclass, field
 from typing import Any
@@ -116,10 +119,11 @@ def read_file(file_name):
         file_string += " " 
     return file_string
 
-def benchmark(current, node_counter, timer, last_move=0, move_sum=0):
+def benchmark(name, current, node_counter, timer, last_move=0, move_sum=0):
 
-    print("\n---BENCHMARK----------------------------------")           
-    print(f"running time: {perf_counter() - timer:0.4f}")
+    print("\n---BENCHMARK----------------------------------") 
+    runtime = perf_counter() - timer          
+    print(f"running time: {runtime:0.4f}")
     print(f"amount of nodes explored: {node_counter}")
     print(f"length of path through the tree: {current.depth}")
     last_move = 0
@@ -131,7 +135,7 @@ def benchmark(current, node_counter, timer, last_move=0, move_sum=0):
             move_sum += 1
     print(f"timesteps taken until completion of problem: {last_move}")
     print(f"amount of moves made in total: {move_sum}\n")
-    return
+    return [name, runtime, node_counter, current.depth, last_move, move_sum]
 
 
 def main():
@@ -140,8 +144,7 @@ def main():
     parser.add_argument("input", help="ASP file containing robot plans")
     parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
     parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
-       
-
+    parser.add_argument('benchmark_file', nargs='?', type=str, default="bm_output.csv", help="By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.")
     args = parser.parse_args()
 
     node_counter = 1
@@ -201,7 +204,19 @@ def main():
             print("no first_conflict found")
 
             if args.benchmark:
-                benchmark(current, node_counter, timer)
+                if args.benchmark_file == "bm_output.csv":
+                    mode = 'w' if os.path.exists("bm_output.csv") else 'a'
+                else:
+                    mode = 'a'
+                
+                if os.path.exists(args.benchmark_file): new_file = False
+                else: new_file = True
+
+                with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
+                    writer = csv.writer(f)
+                    if new_file:
+                        writer.writerow(['name', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
+                    writer.writerow(benchmark(args.input, current, node_counter, timer))
                 
             
             # write to output file
