@@ -1,6 +1,6 @@
 #include "input.lp".
 
-#const horizon=30.
+#const horizon=25.
 time(1..horizon).
 
 direction((X,Y)) :- X=-1..1, Y=-1..1, |X+Y|=1.
@@ -19,15 +19,10 @@ newConstraint(R) :- position(R,C,T), constraint(R,C,T).
 
 { move(R,D,T) : direction(D) } 1 :- time(T), newConstraint(R).
 
-1{lastmove(T) : move(R,_,T)}1 :- newConstraint(R).
-:- lastmove(T), move(R,_,T'), T'>T, newConstraint(R).
+cost(N+N'-N'') :- moveSum(N'), old_cost(N), N''=#sum{T : oldmove(R,D,T)}, newConstraint(R).
 
-#minimize{T : lastmove(T)}.
-
-1{oldlastmove(T) : oldmove(R,_,T)}1 :- newConstraint(R).
-:- oldlastmove(T), oldmove(R,_,T'), newConstraint(R), T'>T.
-
-cost(N+N'-N'') :- lastmove(N'), old_cost(N), oldlastmove(N'').
+moveSum(Z) :- Z=#sum{T : move(R,D,T)}.
+#minimize{Z : moveSum(Z)}.
 
 newPosition(R,C,0) :- position(robot(R),C,0), newConstraint(R).
 newPosition(R,C,T)  :- move(R,D,T), newPosition(R,C',T-1),     nextto(C',D,C).
