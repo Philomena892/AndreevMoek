@@ -60,7 +60,7 @@ def make_problem(input):
             raise
     return new_problem
 
-def get_children(parent, first_conflict, conflict_index, low_level, shows):
+def get_children(parent, first_conflict, inits, low_level, shows):
     # make constraint(Robot,Coordinates,Timestep) 
     # first_conflict has format first_conflict(Robot1, Robot2, Coordinates1, Coordinates2, Timestep)
     left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[4]], True)
@@ -84,8 +84,8 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
 
     lconstraints = make_string(left_child.constraints)
     try:
-        left_child.problem = make_problem(problem + lconstraints + low_level + shows)
-        left_child.cost = left_child.problem[conflict_index-1].arguments[0]
+        left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows)
+        left_child.cost = left_child.problem[0].arguments[0]
     except StopIteration:
         error_num = 1
 
@@ -97,8 +97,8 @@ def get_children(parent, first_conflict, conflict_index, low_level, shows):
 
     rconstraints = make_string(right_child.constraints)
     try:
-        right_child.problem = make_problem(problem + rconstraints + low_level + shows)
-        right_child.cost = right_child.problem[conflict_index-1].arguments[0]
+        right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows)
+        right_child.cost = right_child.problem[0].arguments[0]
     except StopIteration:
         if error_num == 1: error_num = 3
         else: error_num = 2
@@ -168,20 +168,16 @@ def main():
                #show occurs(object(robot,R), action(move,D), T) : move(R,D,T). 
                #show occurs(object(robot,R), action(move,D), T) :    oldmove(R,D,T), not newConstraint(R).
                #show first_conflict(R,S,C,C',T) : first_conflict(R,S,C,C',T).
-               #show cost/1.
-               #show init/2.'''
+               #show cost/1.'''
 
     # initialize root node + construct model for it
     root = Node()
     root.depth = 0
 
+    inits = make_string(make_problem(problem_file + " #show. #show init/2."))
+    print("\ninits:" + inits + "\n")
+
     root.problem = make_problem(asp_file + problem_file + shows)
-
-
-    for i in range(len(root.problem)):
-            if root.problem[i].name == "first_conflict":
-                conflict_index = i
-                break
 
     # total number of moves
     root.cost = 0
@@ -195,10 +191,9 @@ def main():
         node_counter += 1
 
         # check whether there is a first conflict
-        print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
+        #print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
         print(f"cost of current.problem: {current.cost}")
-        print(f"conflict_index: {conflict_index}")
-        first_conflict = (list(current.problem))[conflict_index]
+        first_conflict = (list(current.problem))[1]
         print("first_conflict: " + str(first_conflict))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
@@ -224,7 +219,7 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-        l_child, r_child, num = get_children(current, first_conflict.arguments, conflict_index, asp_file, shows)
+        l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows)
 
         if num == 3: break
         if num != 1:
@@ -245,7 +240,7 @@ def main():
             if new_file or args.benchmark_file == "bm_output.csv":
                 writer.writerow(['name', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
             writer.writerow(benchmark(args.input, current, node_counter, timer))
-            
+
 if __name__ == "__main__":
     main()
 
