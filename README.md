@@ -14,6 +14,12 @@ Contains images of examples to be used in README files.
 
 In the folder `CBS` a version of the CBS - short for Constraint Based Search - algorithm can be found. To use our CBS first install asprilo and the asprilo visualizer (https://github.com/potassco/asprilo-seminar)
 
+### Our cost functions
+
+lowlevel: sum of costs (the time of every move is added up and makes up the cost)
+
+lowlevel_greedy: sum of conflicts (all the conflicts are counted  and make up the cost)
+
 # Usage of our CBS implementation:
 ```
 usage: node.py [-h] [-b] low_level input
