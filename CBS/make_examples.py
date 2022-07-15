@@ -1,6 +1,7 @@
 import os
 import sys
 import clingo
+import random
 
 
 def read_file(file_name):
@@ -22,12 +23,10 @@ def read_file(file_name):
 
 
 # for each size and density always generate three random examples
-SIZE = [8, 16, 24]
-DENSITY = [0.1, 0.2, 0.3, 0.4, 0.5]
+SIZE = [5, 8, 16, 24]
+DENSITY = [0.2, 0.3, 0.4, 0.5]
 FIRST_ITERATION = read_file("first_iteration.lp")
-SHOWS = '''#show.
-        #show init/2.
-        #show occurs(object(robot,R), action(move,D), T) : move(robot(R),D,T).''' 
+SEED = "123456789"
 
 
 os.system(f"mkdir benchmark_examples")
@@ -43,32 +42,38 @@ for size in SIZE:
         folder = f"{dir}/density{int(density * 100)}"
         os.system(f"mkdir {folder}")
 
-        for i in range(1,4):
+        for i in range(1,2):
 
             print(f"Example Number {i}.")
     
             numRobots = int((size**2) * density)
             file = f"./{folder}/ex{i}.lp"
             
-            # generate new example with appropriate sizes
+            # generate random new example with appropriate sizes
             # take out > /dev/null 2>&1 to see output
-            os.system(f"gen -x {size} -y {size} -r {numRobots} -s {numRobots} -d {folder} --random > /dev/null 2>&1")
-            
+            os.system(f"gen -x {size} -y {size} -r {numRobots} -s {numRobots} -d {folder} --random --seed={''.join(random.sample(SEED,9))} > /dev/null 2>&1")
+            print("Example generated.")
             # rename file to ex[i].lp, so it is not overwritten in next iteration 
             arr = os.listdir(f"./{folder}")
+            print(f"arr: {arr}")
             os.system(f"mv {folder}/{arr[0]} {file}")
 
             # solve generated example with first_iteration.lp
             ctl = clingo.Control()
-            ctl.add("base", [], FIRST_ITERATION + SHOWS + read_file(file))
+            read = read_file(file)
+            ctl.add("base", [], FIRST_ITERATION + read)
+            print(FIRST_ITERATION)
+            print(read)
+            print("Successfully added")
             
             ctl.ground([("base", [])])
+            print("Done with grounding.")
             with ctl.solve(yield_=True) as handle:
                 model = None
                 my_iter = iter(handle)
                 for model in my_iter:
                     pass
-                
+                print("Found paths.")
                 # format the model to asprilo format (point after each atom)
                 string = ""
                 for elem in list(model.symbols(shown=True)):
@@ -77,4 +82,4 @@ for size in SIZE:
                 # save the paths back into the file
                 with open(file, "w") as f:
                     f.write(string)
-
+                
