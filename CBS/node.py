@@ -234,8 +234,18 @@ def main():
     
     print("\nNo solution found!")
     if args.benchmark:
-        benchmark(current, node_counter, timer)
+        new_file = False if os.path.exists(args.benchmark_file) else True
 
+        mode = 'a'
+        if args.benchmark_file == "bm_output.csv" and not new_file:
+            mode = 'w'  
+
+        with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            if new_file or args.benchmark_file == "bm_output.csv":
+                writer.writerow(['name', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
+            writer.writerow(benchmark(args.input, current, node_counter, timer))
+            
 if __name__ == "__main__":
     main()
 
