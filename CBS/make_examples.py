@@ -2,6 +2,7 @@ import os
 import sys
 import clingo
 import random
+from gen import make_instance
 
 
 def read_file(file_name):
@@ -12,7 +13,7 @@ def read_file(file_name):
         sys.exit(f"The file {file_name} could not be found.")
     
     # to get rid of comments included by asprilo generator
-    if file_name != "first_iteration.lp":
+    if file_name != "first_iteration_one_rob.lp":
         lines = lines[23:]
 
     file_string = ''
@@ -25,9 +26,8 @@ def read_file(file_name):
 # for each size and density always generate three random examples
 SIZE = [5, 8, 16, 24]
 DENSITY = [0.2, 0.3, 0.4, 0.5]
-FIRST_ITERATION = read_file("first_iteration.lp")
-SEED = "123456789"
-
+FIRST_ITERATION = read_file("first_iteration_one_rob.lp")
+SHOWS = "#show. #show occurs(object(robot,R), action(move,D), T) : move(robot(R),D,T)."
 
 os.system(f"mkdir benchmark_examples")
 for size in SIZE:
@@ -51,35 +51,37 @@ for size in SIZE:
             
             # generate random new example with appropriate sizes
             # take out > /dev/null 2>&1 to see output
-            os.system(f"gen -x {size} -y {size} -r {numRobots} -s {numRobots} -d {folder} --random --seed={''.join(random.sample(SEED,9))} > /dev/null 2>&1")
+            moves = ""
+            INITS = ""
+            INITS = make_instance(size, numRobots)
+
+            #os.system(f"gen -x {size} -y {size} -r {numRobots} -s {numRobots} -d {folder} --random --seed={''.join(random.sample(SEED,9))} --rand-freq 0.8 > /dev/null 2>&1")
             print("Example generated.")
             # rename file to ex[i].lp, so it is not overwritten in next iteration 
-            arr = os.listdir(f"./{folder}")
-            print(f"arr: {arr}")
-            os.system(f"mv {folder}/{arr[0]} {file}")
 
-            # solve generated example with first_iteration.lp
-            ctl = clingo.Control()
-            read = read_file(file)
-            ctl.add("base", [], FIRST_ITERATION + read)
-            print(FIRST_ITERATION)
-            print(read)
-            print("Successfully added")
-            
-            ctl.ground([("base", [])])
-            print("Done with grounding.")
-            with ctl.solve(yield_=True) as handle:
-                model = None
-                my_iter = iter(handle)
-                for model in my_iter:
-                    pass
-                print("Found paths.")
-                # format the model to asprilo format (point after each atom)
-                string = ""
-                for elem in list(model.symbols(shown=True)):
-                    string += str(elem) + ". "
+            # solve generated example with first_iteration_one_rob.lp for each robot once
+            print(f"moves before loop: {moves}\n")
+            print(f"numRobots: {numRobots}")
 
-                # save the paths back into the file
-                with open(file, "w") as f:
-                    f.write(string)
-                
+            for j in range(1, numRobots+1):
+                print(f"j={j}")
+                ctl = clingo.Control([f"-c rob={j}"])
+                ctl.add("base", [], FIRST_ITERATION + INITS + SHOWS)         
+                ctl.ground([("base", [])])
+
+                with ctl.solve(yield_=True) as handle:
+                    model = None
+                    my_iter = iter(handle)
+                    for model in my_iter:
+                        pass
+                    print(f"\n\nmodel: {model.symbols(terms=True)}")
+
+                    # format the moves to asprilo format (point after each atom)
+                    for elem in list(model.symbols(terms=True)):
+                        moves += str(elem) + ". "
+                    print(f"moves: {moves}")
+
+                    # save the paths back into the file
+                    with open(file, "a") as f:
+                        f.write(INITS)
+                        f.write(moves)                    
