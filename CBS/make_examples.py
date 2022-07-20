@@ -55,9 +55,7 @@ for size in SIZE:
             INITS = ""
             INITS = make_instance(size, numRobots)
 
-            #os.system(f"gen -x {size} -y {size} -r {numRobots} -s {numRobots} -d {folder} --random --seed={''.join(random.sample(SEED,9))} --rand-freq 0.8 > /dev/null 2>&1")
             print("Example generated.")
-            # rename file to ex[i].lp, so it is not overwritten in next iteration 
 
             # solve generated example with first_iteration_one_rob.lp for each robot once
             print(f"moves before loop: {moves}\n")
@@ -65,7 +63,7 @@ for size in SIZE:
 
             for j in range(1, numRobots+1):
                 print(f"j={j}")
-                ctl = clingo.Control([f"-c rob={j}"])
+                ctl = clingo.Control([f"-c rob={j}", f"-c horizon={size*2}"])
                 ctl.add("base", [], FIRST_ITERATION + INITS + SHOWS)         
                 ctl.ground([("base", [])])
 
@@ -83,5 +81,5 @@ for size in SIZE:
 
                     # save the paths back into the file
                     with open(file, "a") as f:
-                        f.write(INITS)
-                        f.write(moves)                    
+                        if j == 1: f.write(INITS)
+                        f.write(moves)     
