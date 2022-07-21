@@ -31,7 +31,7 @@ def make_string(list):
     string = ""
     for elem in list:
         if elem.name == "first_conflict":
-            print("first conflict found")
+            #print("first conflict found")
             continue
         if elem.name == "cost":
             string += "old_" + str(elem) + ". "
@@ -103,7 +103,7 @@ def get_children(parent, first_conflict, inits, low_level, shows, horizon):
         if error_num == 1: error_num = 3
         else: error_num = 2
     
-    print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
+    # print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
     return left_child, right_child, error_num
 
@@ -138,7 +138,7 @@ def benchmark(name, current, node_counter, timer, last_move=0, move_sum=0):
     return [name, runtime, node_counter, current.depth, last_move, move_sum]
 
 
-def main():
+def main(raw_args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="ASP file containing robot plans")
@@ -146,7 +146,8 @@ def main():
     parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
     parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
     parser.add_argument('benchmark_file', nargs='?', type=str, default="bm_output.csv", help="By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.")
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
+    print(f"vars(args): {vars(args)}")
 
     node_counter = 1
     if args.benchmark:
@@ -176,7 +177,7 @@ def main():
     root.depth = 0
 
     inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon))
-    print("\ninits:" + inits + "\n")
+    # print("\ninits:" + inits + "\n")
 
     root.problem = make_problem(asp_file + problem_file + shows, args.horizon)
 
@@ -193,9 +194,9 @@ def main():
 
         # check whether there is a first conflict
         #print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
-        print(f"cost of current.problem: {current.cost}")
+        #print(f"cost of current.problem: {current.cost}")
         first_conflict = (list(current.problem))[1]
-        print("first_conflict: " + str(first_conflict))
+        #print("first_conflict: " + str(first_conflict))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
 
