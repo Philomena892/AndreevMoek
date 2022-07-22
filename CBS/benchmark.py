@@ -3,8 +3,15 @@
 
 import os
 import signal
+from socket import timeout
 import sys
 from node import main as run
+
+class TimeOutException(Exception):
+    def __init__(self, message='Aborted execution'):
+        # Call the base class constructor with the parameters it needs
+        super(TimeOutException, self).__init__(message)
+
 
 problems = []
 root = "./benchmark_examples/"
@@ -17,29 +24,12 @@ for path, subdirs, files in os.walk(root):
 
 
 print(problems) # contains all filenames in this and subdirectories
+problems.sort()
 
 
 # Register a handler for the timeout
 def handler(signum, frame):
-    print("Aborted execution")
-    raise Exception("timeout")
-    
-
-# This function *may* run for an indetermined time...
-def run_example(problem, output):
-
-    
-    stats = problem.split("/")
-    print(stats)
-    
-    size = int(stats[2][-1])
-    print(size)
-
-    # horizon is size*2
-    # > /dev/null 2>&1 to get no output
-    os.system(f"python node.py -b -hz {size*2} {problem} {output}")
-    print(f"{problem} successfully run.")
-    return
+    raise TimeOutException()
     
            
 # Register the signal function handler
@@ -50,23 +40,22 @@ def main():
 
     for file in problems:
 
-        signal.signal(signal.SIGALRM, handler)
-        # timeout after 3 min
-        signal.alarm(3*60)
-
         stats = file.split("/")
         print(stats)
         
         size = int(stats[2][-1])
-        print(size)
-        
+
+        signal.signal(signal.SIGALRM, handler)
+        # timeout after 5 min
+        signal.alarm(5*60)
+
         try:
 
             # horizon is size*2
             run(["-b",f"-hz={size*2}",f"{file}",f"{output}"])
             print(f"{file} successfully run.")
 
-        except Exception as exc: 
+        except TimeOutException as exc: 
         
             print(exc)
             print(f"failed to complete testing on {file}")
