@@ -24,8 +24,8 @@ def read_file(file_name):
 
 
 # for each size and density always generate three random examples
-SIZE = [5, 8, 16, 24]
-DENSITY = [0.2, 0.3, 0.4, 0.5]
+SIZE = [5, 6, 7, 8]
+DENSITY = [0.2, 0.3, 0.4]
 FIRST_ITERATION = read_file("first_iteration_one_rob.lp")
 SHOWS = "#show. #show occurs(object(robot,R), action(move,D), T) : move(robot(R),D,T)."
 
@@ -42,7 +42,7 @@ for size in SIZE:
         folder = f"{dir}/density{int(density * 100)}"
         os.system(f"mkdir {folder}")
 
-        for i in range(1,2):
+        for i in range(1,16): 
 
             print(f"Example Number {i}.")
     
@@ -64,7 +64,7 @@ for size in SIZE:
             for j in range(1, numRobots+1):
                 print(f"j={j}")
                 ctl = clingo.Control([f"-c rob={j}", f"-c horizon={size*2}"])
-                ctl.add("base", [], FIRST_ITERATION + INITS + SHOWS)         
+                ctl.add("base", [], FIRST_ITERATION + INITS + f"#show. #show occurs(object(robot,{j}), action(move,D), T) : move(robot({j}),D,T).")         
                 ctl.ground([("base", [])])
 
                 with ctl.solve(yield_=True) as handle:
@@ -82,4 +82,4 @@ for size in SIZE:
                     # save the paths back into the file
                     with open(file, "a") as f:
                         if j == 1: f.write(INITS)
-                        f.write(moves)     
+                        if j == numRobots: f.write(moves)  
