@@ -154,7 +154,7 @@ def main(raw_args=None):
     problem_file = read_file(args.input)
     
     # read low level search implementation
-    lowlevel = "lowlevel_test.lp"
+    lowlevel = "lowlevel.lp"
     # add the cost of root
     problem_file += " cost(0)."
 
