@@ -1,3 +1,5 @@
+from ast import arg
+import pathlib
 from queue import PriorityQueue
 from time import perf_counter
 import clingo
@@ -31,8 +33,7 @@ def make_string(list):
         if elem.name == "first_conflict":
             #print("first conflict found")
             continue
-        if elem.name == "cost":
-            string += "old_" + str(elem) + ". "
+        if elem.name == "loc_cost":
             continue
         string += str(elem) + ". "
     return string
@@ -169,11 +170,6 @@ def main(raw_args=None):
     
     # read low level search implementation
     lowlevel = "lowlevel.lp"
-    if args.greedy:
-        lowlevel = "lowlevel_greedy.lp"
-    else:
-        # add the cost of root
-        problem_file += " cost(0)."
 
     asp_file = read_file(lowlevel)
 
