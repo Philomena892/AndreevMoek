@@ -1,5 +1,6 @@
 #include "input.lp".
 
+#const horizon=30.
 time(1..horizon).
 
 direction((X,Y)) :- X=-1..1, Y=-1..1, |X+Y|=1.
@@ -18,8 +19,13 @@ newConstraint(R) :- position(R,C,T), constraint(R,C,T).
 
 { move(R,D,T) : direction(D) } 1 :- time(T), newConstraint(R).
 
-moveSum(Z) :- Z=#sum{T : move(R,D,T)}.
-#minimize{Z : moveSum(Z)}.
+1{lastmove(T) : move(R,_,T)}1 :- newConstraint(R).
+:- lastmove(T), move(R,_,T'), T'>T, newConstraint(R).
+
+moveCount(Z) :- Z=#count{T : move(R,D,T)}.
+
+#minimize{Z : moveCount(Z)}.
+#minimize{T : lastmove(T)}.
 
 newPosition(R,C,0) :- position(robot(R),C,0), newConstraint(R).
 newPosition(R,C,T)  :- move(R,D,T), newPosition(R,C',T-1),     nextto(C',D,C).
@@ -35,8 +41,6 @@ conflict(R,S,C,C,T) :- newPosition(R,C,T), position(S,C,T), R!=S, not newConstra
 
 conflict(R,S,C,C',T) :- position(R,C,T), position(R,C',T-1), position(S,C',T), position(S,C,T-1), R!=S, not newConstraint(R), not newConstraint(S), T>0.
 conflict(R,S,C,C',T) :- newPosition(R,C,T), newPosition(R,C',T-1), position(S,C',T), position(S,C,T-1), R!=S, not newConstraint(S), T>0.
-
-cost(Z) :- Z=#count{R,S,C,C',T : conflict(R,S,C,C',T)}.
 
 1{first_conflict(R,S,C,C',T) : conflict(R,S,C,C',T)}1 :- conflict(_,_,_,_,_).
 :- first_conflict(_,_,_,_,T), conflict(_,_,_,_,T'), T'<T.
