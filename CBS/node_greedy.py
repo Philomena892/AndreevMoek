@@ -31,7 +31,7 @@ def make_string(list):
     string = ""
     for elem in list:
         if elem.name == "first_conflict":
-            print("first conflict found")
+            #print("first conflict found")
             continue
         if elem.name == "conflict":
             continue
@@ -106,7 +106,7 @@ def get_children(parent, first_conflict, inits, low_level, shows, horizon):
         if error_num == 1: error_num = 3
         else: error_num = 2
     
-    print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
+    #print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
     return left_child, right_child, error_num
 
@@ -162,7 +162,7 @@ def main(raw_args=None):
     # read low level search implementation
     lowlevel = "lowlevel.lp"
     if args.greedy:
-        lowlevel = "lowlevel_greedy_alt.lp"
+        lowlevel = "lowlevel_greedy.lp"
     else:
         # add the cost of root
         problem_file += " cost(0)."
@@ -179,8 +179,8 @@ def main(raw_args=None):
     root = Node()
     root.depth = 0
 
-    inits = make_string(make_problem(problem_file + " #show. #show init/2.")[1], args.horizon)
-    print("\ninits:" + inits + "\n")
+    inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon)[1])
+    #print("\ninits:" + inits + "\n")
 
     root.cost, root.problem = make_problem(asp_file + problem_file + shows, args.horizon)
 
@@ -194,9 +194,9 @@ def main(raw_args=None):
 
         # check whether there is a first conflict
         #print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
-        print(f"cost of current.problem: {current.cost}")
+        #print(f"cost of current.problem: {current.cost}")
         first_conflict = (list(current.problem))[0]
-        print("first_conflict: " + str(first_conflict))
+        #print("first_conflict: " + str(first_conflict))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
 
