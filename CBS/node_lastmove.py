@@ -31,16 +31,17 @@ def make_string(list):
     string = ""
     for elem in list:
         if elem.name == "first_conflict":
-            print("first conflict found")
+            #print("first conflict found")
             continue
-        if elem.name == "loc_cost":
+        if elem.name == "cost":
+            string += "old_" + str(elem) + ". "
             continue
         string += str(elem) + ". "
     return string
 
-def make_problem(input):
+def make_problem(input, horizon):
     new_problem = []
-    ctl = clingo.Control()
+    ctl = clingo.Control([f"-c horizon={horizon}"])
     ctl.add("base", [], input)
 
     ctl.ground([("base", [])])
@@ -72,7 +73,7 @@ def get_old_loc_cost(parent, robot):
     old_loc_cost = last_move + move_sum
     return old_loc_cost
 
-def get_children(parent, first_conflict, inits, low_level, shows):
+def get_children(parent, first_conflict, inits, low_level, shows, horizon):
     # make constraint(Robot,Coordinates,Timestep) 
     # first_conflict has format first_conflict(Robot1, Robot2, Coordinates1, Coordinates2, Timestep)
     left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[4]], True)
@@ -96,7 +97,7 @@ def get_children(parent, first_conflict, inits, low_level, shows):
 
     lconstraints = make_string(left_child.constraints)
     try:
-        left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows)
+        left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows, horizon)
         left_child.cost = parent.cost - get_old_loc_cost(parent, first_conflict[0]) + left_child.problem[0].arguments[0].number
     except StopIteration:
         error_num = 1
@@ -109,13 +110,13 @@ def get_children(parent, first_conflict, inits, low_level, shows):
 
     rconstraints = make_string(right_child.constraints)
     try:
-        right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows)
+        right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows, horizon)
         right_child.cost = parent.cost - get_old_loc_cost(parent, first_conflict[1]) + right_child.problem[0].arguments[0].number
     except StopIteration:
         if error_num == 1: error_num = 3
         else: error_num = 2
     
-    print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
+    # print(f"left constraints: {lconstraints} \n right constraints: {rconstraints}")
 
     return left_child, right_child, error_num
 
@@ -150,14 +151,16 @@ def benchmark(name, current, node_counter, timer, last_move=0, move_sum=0):
     return [name, runtime, node_counter, current.depth, last_move, move_sum]
 
 
-def main():
+def main(raw_args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="ASP file containing robot plans")
-    parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
+    parser.add_argument("-hz","--horizon", type=int, required=True, help="maximum makespan the solution is allowed to have")
     parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
+    parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
     parser.add_argument('benchmark_file', nargs='?', type=str, default="bm_output.csv", help="By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.")
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
+    print(f"vars(args): {vars(args)}")
 
     node_counter = 1
     if args.benchmark:
@@ -167,7 +170,7 @@ def main():
     problem_file = read_file(args.input)
     
     # read low level search implementation
-    lowlevel = "lowlevel_lastmove.lp"
+    lowlevel = "lowlevel.lp"
     if args.greedy:
         lowlevel = "lowlevel_greedy.lp"
     else:
@@ -186,10 +189,10 @@ def main():
     root = Node()
     root.depth = 0
 
-    inits = make_string(make_problem(problem_file + " #show. #show init/2."))
-    print("\ninits:" + inits + "\n")
+    inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon))
+    # print("\ninits:" + inits + "\n")
 
-    root.problem = make_problem(asp_file + problem_file + "lastmove(0). " + shows)
+    root.problem = make_problem(asp_file + problem_file + "lastmove(0). " + shows, args.horizon)
 
     # total number of moves
     root.cost = 0
@@ -203,10 +206,10 @@ def main():
         node_counter += 1
 
         # check whether there is a first conflict
-        print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
-        print(f"cost of current.problem: {current.cost}")
+        #print(f"\n\ncurrent.problem: {make_string(current.problem)}\n\n")
+        #print(f"cost of current.problem: {current.cost}")
         first_conflict = (list(current.problem))[1]
-        print("first_conflict: " + str(first_conflict))
+        #print("first_conflict: " + str(first_conflict))
         if first_conflict.name != "first_conflict":
             print("no first_conflict found")
 
@@ -232,7 +235,7 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-        l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows)
+        l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows, args.horizon)
 
         if num == 3: break
         if num != 1:
