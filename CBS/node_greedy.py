@@ -38,10 +38,10 @@ def make_string(list):
         string += str(elem) + ". "
     return string
 
-def make_problem(input):
+def make_problem(input, horizon):
     cost = 0
     new_problem = []
-    ctl = clingo.Control()
+    ctl = clingo.Control([f"-c horizon={horizon}"])
     ctl.add("base", [], input)
 
     ctl.ground([("base", [])])
@@ -65,7 +65,7 @@ def make_problem(input):
 
     return cost, new_problem
 
-def get_children(parent, first_conflict, inits, low_level, shows):
+def get_children(parent, first_conflict, inits, low_level, shows, horizon):
     # make constraint(Robot,Coordinates,Timestep) 
     # first_conflict has format first_conflict(Robot1, Robot2, Coordinates1, Coordinates2, Timestep)
     left_constraint = Function("constraint", [first_conflict[0], first_conflict[2], first_conflict[4]], True)
@@ -89,7 +89,7 @@ def get_children(parent, first_conflict, inits, low_level, shows):
 
     lconstraints = make_string(left_child.constraints)
     try:
-        left_child.cost, left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows)
+        left_child.cost, left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows, horizon)
     except StopIteration:
         error_num = 1
 
@@ -101,7 +101,7 @@ def get_children(parent, first_conflict, inits, low_level, shows):
 
     rconstraints = make_string(right_child.constraints)
     try:
-        right_child.cost, right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows)
+        right_child.cost, right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows, horizon)
     except StopIteration:
         if error_num == 1: error_num = 3
         else: error_num = 2
@@ -146,6 +146,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="ASP file containing robot plans")
     parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
+    parser.add_argument("-hz","--horizon", type=int, required=True, help="maximum makespan the solution is allowed to have")
     parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
     parser.add_argument('benchmark_file', nargs='?', type=str, default="bm_output.csv", help="By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.")
     args = parser.parse_args()
@@ -177,10 +178,10 @@ def main():
     root = Node()
     root.depth = 0
 
-    inits = make_string(make_problem(problem_file + " #show. #show init/2.")[1])
+    inits = make_string(make_problem(problem_file + " #show. #show init/2.")[1], args.horizon)
     print("\ninits:" + inits + "\n")
 
-    root.cost, root.problem = make_problem(asp_file + problem_file + shows)
+    root.cost, root.problem = make_problem(asp_file + problem_file + shows, args.horizon)
 
     # make priority queue
     queue = PriorityQueue()
@@ -220,7 +221,7 @@ def main():
                     file.write(str(elem) + ". ")
 
             return True
-        l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows)
+        l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows, args.horizon)
 
         if num == 3: break
         if num != 1:
