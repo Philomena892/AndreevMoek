@@ -1,5 +1,3 @@
-from ast import arg
-import pathlib
 from queue import PriorityQueue
 from time import perf_counter
 import clingo
