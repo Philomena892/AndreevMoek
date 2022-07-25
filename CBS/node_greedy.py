@@ -141,7 +141,7 @@ def benchmark(name, current, node_counter, timer, last_move=0, move_sum=0):
     return [name, runtime, node_counter, current.depth, last_move, move_sum]
 
 
-def main():
+def main(raw_args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="ASP file containing robot plans")
@@ -149,7 +149,8 @@ def main():
     parser.add_argument("-hz","--horizon", type=int, required=True, help="maximum makespan the solution is allowed to have")
     parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
     parser.add_argument('benchmark_file', nargs='?', type=str, default="bm_output.csv", help="By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.")
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
+    print(f"vars(args): {vars(args)}")
 
     node_counter = 1
     if args.benchmark:
