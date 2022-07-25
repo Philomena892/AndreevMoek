@@ -155,7 +155,6 @@ def main(raw_args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("input", help="ASP file containing robot plans")
     parser.add_argument("-hz","--horizon", type=int, required=True, help="maximum makespan the solution is allowed to have")
-    parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
     parser.add_argument("-b","--benchmark", help="output benchmarked values to the command line", action="store_true")
     parser.add_argument('benchmark_file', nargs='?', type=str, default="bm_output.csv", help="By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.")
     args = parser.parse_args(raw_args)
