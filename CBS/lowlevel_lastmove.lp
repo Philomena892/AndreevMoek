@@ -1,6 +1,5 @@
 #include "input.lp".
 
-#const horizon=30.
 time(1..horizon).
 
 direction((X,Y)) :- X=-1..1, Y=-1..1, |X+Y|=1.
@@ -21,10 +20,10 @@ newConstraint(R) :- position(R,C,T), constraint(R,C,T).
 
 1{lastmove(T) : move(R,_,T)}1 :- newConstraint(R).
 :- lastmove(T), move(R,_,T'), T'>T, newConstraint(R).
-
 moveCount(Z) :- Z=#count{T : move(R,D,T)}.
 
 #minimize{Z : moveCount(Z)}.
+
 #minimize{T : lastmove(T)}.
 
 newPosition(R,C,0) :- position(robot(R),C,0), newConstraint(R).
