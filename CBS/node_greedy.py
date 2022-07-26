@@ -200,7 +200,7 @@ def main(raw_args=None):
                 with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
                     writer = csv.writer(f)
                     if new_file or args.benchmark_file == "bm_output.csv":
-                        writer.writerow(['name', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
+                        writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
                     writer.writerow(benchmark(args.input, current, node_counter, timer))
                 
             
@@ -231,7 +231,7 @@ def main(raw_args=None):
         with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             if new_file or args.benchmark_file == "bm_output.csv":
-                writer.writerow(['name', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
+                writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
             writer.writerow(benchmark(args.input, current, node_counter, timer))
 
 if __name__ == "__main__":
