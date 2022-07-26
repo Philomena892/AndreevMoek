@@ -44,11 +44,3 @@ The benchmark mode will output multiple values:
 * and the sum of all the steps taken by the robots
 
 Additionally, benchmarked values are written into a .csv file. If no filename is specified, by default they are saved in `bm_output.csv`. This file gets overwritten if another example is run. If you want to append the benchmark output to a csv file, specify the filename at the end.  
-  
-
-
-First attempts:
-
-`twoRobotsNaive.lp` contains a solution to the instance `simple_cross.lp` where there is a single vertex conflict. The conflict is solved by letting one robot wait for a single time step. 
-
-`solve-multiple-vertexConflicts-M.lp` is a work in progress. It builds upon twoRobotsNaive.lp and is designed to solve multiple vertex conflicts between two robots. Thus it aims at the problem instance `double_cross.lp`.
