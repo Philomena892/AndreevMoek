@@ -8,6 +8,7 @@ import csv
 import argparse
 from node import main as run
 from node_greedy import main as grun
+import sys
 
 class TimeOutException(Exception):
     def __init__(self, message='Aborted execution'):
@@ -16,17 +17,21 @@ class TimeOutException(Exception):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-g","--greedy", help="enable when you want to use a faster but suboptimal greedy search", action="store_true")
+parser.add_argument("-g","--greedy", help="enable when you want to test the greedy implementation", action="store_true")
+parser.add_argument('directory', nargs='?', type=str, default="./benchmark_examples/", help="By default runs tests on directory '.benchmark_examples/'. Specify a different name here, if you want to benchmark a different directory")
 args = parser.parse_args()
 
 
 
-problems = []
-root = "./benchmark_examples/"
-path = os.path.join(root, "targetdirectory")
+
+if not os.path.isdir(args.directory):
+    sys.exit(f"{args.directory} is not a directory")
+
+path = os.path.join(args.directory, "targetdirectory")
 print(type(path))
 
-for path, subdirs, files in os.walk(root):
+problems = []
+for path, subdirs, files in os.walk(args.directory):
     for name in files:
         problems.append(os.path.join(path, name))
 
