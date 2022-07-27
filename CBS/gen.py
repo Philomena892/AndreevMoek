@@ -10,19 +10,16 @@ def make_instance(size, numRobots, cooShelfs, cooRobs):
     for x in range(1, size+1):
         for y in range(1, size+1):
             string += f"init(object(node,{x*y}),value(at,({x},{y}))). "
-                
-    print(f"cooShelfs: {cooShelfs}")
-    print(f"cooRobs: {cooRobs}")
 
     for n in range(1,numRobots+1):
-        string += f"init(object(robot,{n}),value(at,{cooRobs.pop()})). "
-        string += f"init(object(shelf,{n}),value(at,{cooShelfs.pop()})). "
+        string += f"init(object(robot,{n}),value(at,{cooRobs[n-1]})). "
+        string += f"init(object(shelf,{n}),value(at,{cooShelfs[n-1]})). "
 
     return string
 
 # generates random coordinates for robots and shelves
 # a robot may not be generated on the shelf it needs to reach
-def genCoo(size, numRobots):
+def gen_coo(size, numRobots):
     
     cooRobs = []
     cooShelfs = []
@@ -41,41 +38,35 @@ def genCoo(size, numRobots):
 
 # generate the occurs for each robot
 # returns string that can be used for asprilo visualizer
-def make_paths(size, numRobots):
+def make_paths(cooShelfs, cooRobs):
 
-    cooShelfs, cooRobs = genCoo(size, numRobots)
+    #cooShelfs, cooRobs = gen_coo(size, numRobots)
 
     moves = []
-    for i in range(numRobots):
-        print(f"{i}. robot")
-        moves.insert(0, [])
+    for i in range(len(cooRobs)):
+        moves.append([])
         r = cooRobs[i]
         s = cooShelfs[i]
         while r != s:
-            print(f"r: {r}")
-            print(f"s: {s}")
             if r[0] < s[0]:
-                print("hello")
-                moves[0].append((1,0))
+                moves[-1].append((1,0))
                 r = (r[0]+1,r[1])
                 continue
             elif r[0] > s[0]:
-                print("hello1")
-                moves[0].append((-1,0))
+                moves[-1].append((-1,0))
                 r = (r[0]-1,r[1])
                 continue
             elif r[1] < s[1]:
-                print("hello2")
-                moves[0].append((0,1))
+                moves[-1].append((0,1))
                 r = (r[0],r[1]+1)
                 continue
             elif r[1] > s[1]:
-                print("hello3")
-                moves[0].append((0,-1))
+                moves[-1].append((0,-1))
                 r = (r[0],r[1]-1)
-    
-    instance = make_instance(size, numRobots, cooShelfs, cooRobs)
-    print(f"moves: {moves}")
+    return moves
+
+def to_asprilo_format(moves):    
+    instance = ""
     for i in range(1, len(moves)+1):                # i are indexes of list of all moves of each robot
         for j in range(1,len(moves[i-1])+1):        # j are indexes of each move of the robot
             instance += f"occurs(object(robot,{i}),action(move,{moves[i-1][j-1]}),{j-1}). "
@@ -90,7 +81,10 @@ def main(raw_args=None):
     parser.add_argument("output", help="the robot plans are saved in this file")
     args = parser.parse_args(raw_args)
 
-    string = make_paths(args.size, args.robots)
+    cooShelves, cooRobs = gen_coo(args.size, args.robots)
+
+    string = make_instance(args.size, args.robots, cooShelves, cooRobs)
+    string += to_asprilo_format(make_paths(cooShelves, cooRobs))
     
     mode = "w" if path.exists(args.output) else "a"
 
