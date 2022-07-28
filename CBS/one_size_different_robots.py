@@ -1,21 +1,25 @@
 import gen
 from gen import make_instance, gen_coo, make_paths, to_asprilo_format
 import os
+import sys
 
 
 SIZE = 7
 MIN_ROBOTS = 2
 maxRobots = 19     # density 40 = 19 robots on size 7
 
-DIR = "./num_robots_benchmark"
+DIR = "num_robots_benchmark"
 os.system(f"mkdir {DIR}")
-
+print(f"sys.platform: {sys.platform}")
 
 cooShelves, cooRobs = gen_coo(SIZE, MIN_ROBOTS)
 inits = make_instance(SIZE, MIN_ROBOTS, cooShelves, cooRobs)
 moves = to_asprilo_format(make_paths(cooShelves, cooRobs))
 
 path = DIR + f"/{MIN_ROBOTS}robs.lp"
+if sys.platform == "win32": 
+    path =  DIR + f"\\{MIN_ROBOTS}robs.lp"
+
 with open(path, "a", encoding='utf-8') as f:
     f.write(inits + moves)
 
@@ -38,5 +42,7 @@ for n in range(MIN_ROBOTS+1, maxRobots+1):
 
     # write to file
     path = DIR + f"/{n}robs.lp"
+    if sys.platform == "win32":
+        path = DIR + f"\\{n}robs.lp"
     with open(path, "a", encoding='utf-8') as f:
         f.write(inits + moves)
