@@ -1,9 +1,3 @@
-# # run all examples from benchmark_examples
-# # with a timelimit of 5 min for each example
-
-# does not work under windows. To develop compatibility check this out: 
-# https://stackoverflow.com/questions/8420422/python-windows-equivalent-of-sigalrm
-
 import os
 import signal
 from socket import timeout
@@ -13,19 +7,41 @@ from node import main as run
 from node_greedy import main as grun
 import sys
 
+
 class TimeOutException(Exception):
+    '''Define an exception to use for a timeout.'''
     def __init__(self, message='Aborted execution'):
         # Call the base class constructor with the parameters it needs
         super(TimeOutException, self).__init__(message)
 
-
-# Register a handler for the timeout
 def handler(signum, frame):
+    '''Register a signal handler for a timeout.'''
     raise TimeOutException()
     
            
-# Register the signal function handler
 def main():
+
+    '''
+    Runs CBS or greedy-CBS on all examples from any folder 
+    (but preferably benchmark_examples which is created by make_examples.py)
+    but with a timelimit of 5 min for each example.
+    If a different folder is chosen, the size has to be manually set in the code (line 63).
+    Writes the results in a csv file "benchmark_results.csv".
+
+    Comment:
+    SIGALRM does not work under windows. To develop compatibility check this out: 
+    https://stackoverflow.com/questions/8420422/python-windows-equivalent-of-sigalrm
+    For now runs under windows without the timer.
+
+    usage: benchmark.py [-h] [-g] [directory]
+
+    positional arguments:
+        directory     By default runs tests on directory '.benchmark_examples/'. Specify a different name here, if you want to benchmark a different directory
+
+    optional arguments:
+        -h, --help    show this help message and exit
+        -g, --greedy  enable when you want to test the greedy implementation
+    '''
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-g","--greedy", help="enable when you want to test the greedy implementation", action="store_true")
@@ -37,15 +53,13 @@ def main():
         sys.exit(f"{args.directory} is not a directory")
 
     path = args.directory
-    print(path)
 
+    # list of files to benchmark on
     problems = []
     for path, subdirs, files in os.walk(args.directory):
         for name in files:
             problems.append(os.path.join(path, name))
 
-
-    # problems contains all filenames in this and subdirectories
     problems.sort()
     
     output = "benchmark_results.csv"
@@ -54,10 +68,12 @@ def main():
 
         stats = file.split("/")
         
-        # size has to manually set if different dir than benchmark_examples
+        # size has to be manually set if different dir than benchmark_examples
         if args.directory == "num_robots_benchmark":
             size = 7
+        # size of example set from file name
         else: size = int(stats[2][-1])
+       
         # density = int(stats[3][-2])
         # num = int(stats[4].split(".")[0].split("x")[1])
 
