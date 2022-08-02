@@ -136,7 +136,7 @@ def to_asprilo_format(moves):
     instance = ""
     for i in range(1, len(moves)+1):                # i are indexes of list of all moves of each robot
         for j in range(1,len(moves[i-1])+1):        # j are indexes of each move of the robot
-            instance += f"occurs(object(robot,{i}),action(move,{moves[i-1][j-1]}),{j-1}). "
+            instance += f"occurs(object(robot,{i}),action(move,{moves[i-1][j-1]}),{j}). "
     
     return instance
 
