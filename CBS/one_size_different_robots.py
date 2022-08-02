@@ -25,12 +25,12 @@ for n in range(MIN_ROBOTS+1, maxRobots+1):
 
     # generate one more distinct robot + shelf coordinates pair
     s, r = gen_coo(SIZE, 1)
-    while (s in cooShelves) or (r in cooRobs):
+    while (s[0] in cooShelves) or (r[0] in cooRobs):
         s, r = gen_coo(SIZE, 1)
     
     # append s and r to coordinate lists
-    cooRobs.append(r)
-    cooShelves.append(s)
+    cooRobs.append(r[0])
+    cooShelves.append(s[0])
     
     # append the inits for the new robot + shelf
     inits += f"init(object(robot,{n}),value(at,{r[0]})). "
