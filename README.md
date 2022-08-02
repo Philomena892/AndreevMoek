@@ -12,29 +12,27 @@ Contains images of examples to be used in README files.
 
 ## Our solutions
 
-In the folder `CBS` a version of the CBS - short for Constraint Based Search - algorithm can be found. To use our CBS first install asprilo and the asprilo visualizer (https://github.com/potassco/asprilo-seminar)
+In the folder `CBS` versions of the CBS - short for Constraint Based Search - algorithm can be found. To use our CBS first install asprilo and the asprilo visualizer (https://github.com/potassco/asprilo-seminar)
 
 ### Our cost functions
 
-lowlevel: sum of costs (the time of every move is added up and makes up the cost)
+lowlevel/lowlevel_alternative: sum of last movement (the time of each robots last move is added up and makes up the cost)
 
 lowlevel_greedy: sum of conflicts (all the conflicts are counted  and make up the cost)
 
 # Usage of our CBS implementation:
 ```
-usage: node.py [-h] [-b] [-g] input [benchmark_file]
-
-positional arguments:
-  input            ASP file containing robot plans
-  benchmark_file   By default benchmarked values are saved in bm_output.csv. Specify a file here,
-                   if you want to append them to it instead.
-
-optional arguments:
-  -h, --help       show this help message and exit
-  -b, --benchmark  output benchmarked values to the command line
-  -g, --greedy     enable when you want to use a faster but suboptimal greedy search
+usage: node.py [-h] -hz HORIZON [-b] input [benchmark_file]
+    positional arguments:
+        input                 ASP file containing robot plans
+        benchmark_file        By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.
+    optional arguments:
+        -h, --help            show this help message and exit
+        -hz HORIZON, --horizon HORIZON
+                              maximum makespan the solution is allowed to have
+        -b, --benchmark       save and output benchmarked values
 ```  
-The CBS implementation will find an optimal solution whereas the -g flag enables a greedy implementation. It gives a suboptimal solution but is considerably faster.
+The node.py and node_alternative.py implementations will find an optimal solution. Meanwhile node_greedy.py gives a suboptimal solution but is considerably faster.
 
 The benchmark mode will output multiple values:
 * the running time
