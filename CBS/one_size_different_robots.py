@@ -38,8 +38,8 @@ for n in range(MIN_ROBOTS+1, maxRobots+1):
 
     # get the moves for the new robot
     new_paths = make_paths(s, r)[0]
-    for i in range(len(new_paths)):
-        moves += f"occurs(object(robot,{n}),action(move,{new_paths[i]}),{i}). "
+    for i in range(1, len(new_paths)+1):
+        moves += f"occurs(object(robot,{n}),action(move,{new_paths[i-1]}),{i}). "
 
     # write to file
     path = os.path.join(DIR, f"{n}robs.lp")
