@@ -313,7 +313,7 @@ def main(raw_args=None):
         l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows, args.horizon)
 
         # error handling + enqueuing the children
-        if num == 3: break
+        if num == 3: continue
         if num != 1:
             queue.put(PrioritizedItem(l_child.cost, l_child))
         if num != 2:
