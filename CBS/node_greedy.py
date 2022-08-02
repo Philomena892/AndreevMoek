@@ -236,7 +236,7 @@ def main(raw_args=None):
         l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows, args.horizon)
 
         # error handling + enqueueing the children
-        if num == 3: break
+        if num == 3: continue
         if num != 1:
             queue.put(PrioritizedItem(l_child.cost, l_child))
         if num != 2:
@@ -244,6 +244,13 @@ def main(raw_args=None):
     
     # if no nodes left in queue
     print("\nNo solution found!")
+    # write current solution to output file
+    mode = 'w' if os.path.exists("output.lp") else 'a'
+    with open("output.lp", mode, encoding='utf-8') as file:
+        file.write(inits)
+        for elem in current.problem:
+            file.write(str(elem) + ". ")
+
     if args.benchmark:
         new_file = False if os.path.exists(args.benchmark_file) else True
 
