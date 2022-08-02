@@ -168,7 +168,7 @@ def main(raw_args=None):
     problem_file = read_file(args.input)
     
     # read low level search implementation
-    lowlevel = "lowlevel.lp"
+    lowlevel = "lowlevel_alternative.lp"
 
     asp_file = read_file(lowlevel)
 
@@ -230,7 +230,7 @@ def main(raw_args=None):
             return True
         l_child, r_child, num = get_children(current, first_conflict.arguments, inits, asp_file, shows, args.horizon)
 
-        if num == 3: break
+        if num == 3: continue
         if num != 1:
             queue.put(PrioritizedItem(l_child.cost, l_child))
         if num != 2:
