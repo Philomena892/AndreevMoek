@@ -65,6 +65,7 @@ def make_problem(input, horizon, root):
             horizon (int):  maximum makespan the solution is allowed to have
             root (bool):    if the problem is to be calculated for the root node,
                             the amount of conflicts will be calculated
+                            
         Returns:
             new_problem (list of clingo.symbol.Symbol):
                             list of symbols that are in the model 
