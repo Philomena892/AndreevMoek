@@ -23,7 +23,6 @@ class PrioritizedItem:
 class Node():
     '''
     A node in a binary search tree used for the CBS algorithm.
-
     Attributes:
         constraints (list of clingo.symbol.Symbol):
                         list of constraints = coordinates a robot cannot be at at a certain time.
@@ -57,20 +56,24 @@ def make_string(list):
         string += str(elem) + ". "
     return string
 
-def make_problem(input, horizon):
+def make_problem(input, horizon, root):
     '''
     Solves a problem using the clingo python API.
-
         Parameters:  
             input (str):    concatenated strings of the problem 
                             (including the instance and the asp file)
             horizon (int):  maximum makespan the solution is allowed to have
-
+            root (bool):    if the problem is to be calculated for the root node,
+                            the amount of conflicts will be calculated
         Returns:
             new_problem (list of clingo.symbol.Symbol):
                             list of symbols that are in the model 
+            init_conflict_num (int): 
+                            amount of conflicts in the problem 
     '''
+    init_conflict_num = 0
     new_problem = []
+
     ctl = clingo.Control([f"-c horizon={horizon}"])
     ctl.add("base", [], input)
 
@@ -85,13 +88,18 @@ def make_problem(input, horizon):
                 pass
             if model != None:
                 new_problem = list(model.symbols(shown=True))
+                if root:
+                    # save number of initial conflicts for benchmarking
+                    for atom in list(model.symbols(atoms=True)):
+                        if atom.name == "conflict":
+                            init_conflict_num += 1
             else:
                 print("model is None")
                 raise StopIteration
         # no model was found = unsolvable
         except StopIteration:
             raise
-    return new_problem
+    return new_problem, init_conflict_num
 
 def get_children(parent, first_conflict, inits, low_level, shows, horizon):
     '''
@@ -134,7 +142,7 @@ def get_children(parent, first_conflict, inits, low_level, shows, horizon):
 
     lconstraints = make_string(left_child.constraints)
     try:
-        left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows, horizon)
+        left_child.problem, _ = make_problem(inits + problem + lconstraints + low_level + shows, horizon, root=False)
         left_child.cost = left_child.problem[0].arguments[0]
     except StopIteration:
         error_num = 1
@@ -147,7 +155,7 @@ def get_children(parent, first_conflict, inits, low_level, shows, horizon):
 
     rconstraints = make_string(right_child.constraints)
     try:
-        right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows, horizon)
+        right_child.problem, _ = make_problem(inits + problem + rconstraints + low_level + shows, horizon, root=False)
         right_child.cost = right_child.problem[0].arguments[0]
     except StopIteration:
         if error_num == 1: error_num = 3
@@ -178,7 +186,7 @@ def read_file(file_name):
         file_string += " " 
     return file_string
 
-def benchmark(name, current, node_counter, timer):
+def benchmark(name, current, node_counter, timer, conflict_num):
     '''
     Evaluates stats for benchmarking and prints the results.
     
@@ -187,6 +195,7 @@ def benchmark(name, current, node_counter, timer):
             current (node):         node which contains solution
             node_counter (int):     amount of nodes that were dequeued so far
             timer (float):          starttime of program
+            conflict_num (int):     number of conflicts in instance at beginning
         
         Returns: list consisting of
             name (str):             same as above
@@ -195,6 +204,7 @@ def benchmark(name, current, node_counter, timer):
             current.depth (int):    depth of solution in search tree
             last_move (int):        timestep the last move was taken at = makespan
             move_sum (int):         counts every single move
+            conflict_num (int):     number of conflicts in instance at beginning
     '''
 
     print("\n---BENCHMARK----------------------------------") 
@@ -210,20 +220,18 @@ def benchmark(name, current, node_counter, timer):
                 last_move = elem.arguments[2].number
             move_sum += 1
     print(f"timesteps taken until completion of problem: {last_move}")
-    print(f"amount of moves made in total: {move_sum}\n")
-    return [name, runtime, node_counter, current.depth, last_move, move_sum]
+    print(f"amount of moves made in total: {move_sum}")
+    print(f"amount of conflicts in the instance: {conflict_num}\n")
+    return [name, runtime, node_counter, current.depth, last_move, move_sum, conflict_num]
 
 
 def main(raw_args=None):
     '''
     Runs CBS on the specified input file. 
-
     usage: node.py [-h] -hz HORIZON [-b] input [benchmark_file]
-
     positional arguments:
         input                 ASP file containing robot plans
         benchmark_file        By default benchmarked values are saved in bm_output.csv. Specify a file here, if you want to append them to it instead.
-
     optional arguments:
         -h, --help            show this help message and exit
         -hz HORIZON, --horizon HORIZON
@@ -264,8 +272,8 @@ def main(raw_args=None):
     root = Node()
     root.depth = 0
     # save init atoms in extra string so they are not always reloaded
-    inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon))
-    root.problem = make_problem(asp_file + problem_file + shows, args.horizon)
+    inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon, root=False)[0])
+    root.problem, conflict_num = make_problem(asp_file + problem_file + shows, args.horizon, root=True)
 
     # total number of moves
     root.cost = 0
@@ -296,8 +304,8 @@ def main(raw_args=None):
                 with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
                     writer = csv.writer(f)
                     if new_file or args.benchmark_file == "bm_output.csv":
-                        writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
-                    writer.writerow(benchmark(args.input, current, node_counter, timer))
+                        writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves', 'init_conflicts'])
+                    writer.writerow(benchmark(args.input, current, node_counter, timer, conflict_num))
                 
             
             # write solution to output file
@@ -331,8 +339,8 @@ def main(raw_args=None):
         with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             if new_file or args.benchmark_file == "bm_output.csv":
-                writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
-            writer.writerow(benchmark(args.input, current, node_counter, timer))
+                writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves', 'init_conflicts'])
+            writer.writerow(benchmark(args.input, current, node_counter, timer, conflict_num))
 
 if __name__ == "__main__":
     main()
