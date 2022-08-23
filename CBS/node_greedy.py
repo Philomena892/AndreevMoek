@@ -34,7 +34,7 @@ def make_string(list):
         string += str(elem) + ". "
     return string
 
-def make_problem(input, horizon):
+def make_problem(input, horizon, root):
     '''
     Solves a problem using the clingo python API.
 
@@ -42,14 +42,20 @@ def make_problem(input, horizon):
             input (str):    concatenated strings of the problem 
                             (including the instance and the asp file)
             horizon (int):  maximum makespan the solution is allowed to have
-
+            root (bool):    if the problem is to be calculated for the root node,
+                            the amount of conflicts will be calculated
+        
         Returns:
             new_problem (list of clingo.symbol.Symbol):
                             list of symbols that are in the model 
             cost (int):     number of conflicts in the model
+            init_conflict_num (int): 
+                            amount of conflicts in the problem 
     '''
+    init_conflict_num = 0
     cost = 0
     new_problem = []
+
     ctl = clingo.Control([f"-c horizon={horizon}"])
     ctl.add("base", [], input)
 
@@ -64,6 +70,11 @@ def make_problem(input, horizon):
                 pass
             if model != None:
                 new_problem = list(model.symbols(shown=True))
+                if root:
+                    # save number of initial conflicts for benchmarking
+                    for atom in list(model.symbols(atoms=True)):
+                        if atom.name == "conflict":
+                            init_conflict_num += 1
             else:
                 print("model is None")
                 raise StopIteration
@@ -120,7 +131,7 @@ def get_children(parent, first_conflict, inits, low_level, shows, horizon):
 
     lconstraints = make_string(left_child.constraints)
     try:
-        left_child.cost, left_child.problem = make_problem(inits + problem + lconstraints + low_level + shows, horizon)
+        left_child.cost, left_child.problem, _ = make_problem(inits + problem + lconstraints + low_level + shows, horizon, root=False)
     except StopIteration:
         error_num = 1
 
@@ -132,7 +143,7 @@ def get_children(parent, first_conflict, inits, low_level, shows, horizon):
 
     rconstraints = make_string(right_child.constraints)
     try:
-        right_child.cost, right_child.problem = make_problem(inits + problem + rconstraints + low_level + shows, horizon)
+        right_child.cost, right_child.problem, _ = make_problem(inits + problem + rconstraints + low_level + shows, horizon, root=False)
     except StopIteration:
         if error_num == 1: error_num = 3
         else: error_num = 2
@@ -189,9 +200,9 @@ def main(raw_args=None):
     root.depth = 0
 
     # save init atoms in extra string so they are not always reloaded
-    inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon)[1])
+    inits = make_string(make_problem(problem_file + " #show. #show init/2.", args.horizon, root=False)[1])
 
-    root.cost, root.problem = make_problem(asp_file + problem_file + shows, args.horizon)
+    root.cost, root.problem, conflict_num = make_problem(asp_file + problem_file + shows, args.horizon, root=True)
 
     # make priority queue
     queue = PriorityQueue()
@@ -219,8 +230,8 @@ def main(raw_args=None):
                 with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
                     writer = csv.writer(f)
                     if new_file or args.benchmark_file == "bm_output.csv":
-                        writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
-                    writer.writerow(benchmark(args.input, current, node_counter, timer))
+                        writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves', 'init_conflicts'])
+                    writer.writerow(benchmark(args.input, current, node_counter, timer, conflict_num))
                 
             
             # write solution to output file
@@ -261,8 +272,8 @@ def main(raw_args=None):
         with open(args.benchmark_file, mode, encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             if new_file or args.benchmark_file == "bm_output.csv":
-                writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves'])
-            writer.writerow(benchmark(args.input, current, node_counter, timer))
+                writer.writerow(['file', 'time', '#nodes', 'pathlength', 'horizon', '#moves', 'init_conflicts'])
+            writer.writerow(benchmark(args.input, current, node_counter, timer, conflict_num))
 
 if __name__ == "__main__":
     main()
