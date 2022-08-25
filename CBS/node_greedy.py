@@ -87,7 +87,7 @@ def make_problem(input, horizon, root):
         cost = cost + 1
         new_problem.pop(0)
 
-    return cost, new_problem
+    return cost, new_problem, init_conflict_num
 
 def get_children(parent, first_conflict, inits, low_level, shows, horizon):
     '''
