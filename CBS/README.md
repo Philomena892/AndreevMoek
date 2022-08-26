@@ -5,7 +5,7 @@ Download node.py (for CBS) and node_greedy.py (for greedy-CBS) as well as their 
 
 Execute `python node.py [-h] -hz HORIZON [-b] input [benchmark_file]` over the command-line. The HORIZON is the maximum amount of timesteps the solution is allowed to take. This should be set as low as possible so that it still allows a solution - the implementation will be faster this way. We recommend setting the horizon to lenght * width of the instance - generally this should be high enough. Then just specify the instance-file as input.
 
-* for greedy-CBS use the same format
+* for greedy-CBS use the same format but exchange `node.py` with `node_greedy.py`
 
 
 # Contents of this folder
