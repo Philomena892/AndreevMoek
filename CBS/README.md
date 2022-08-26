@@ -62,7 +62,8 @@ The low-level searches corresponding to the high-level python searches.
 * **lowlevel/lowlevel_alternative:** sum of last movement (the time of each robots last move is added up and makes up the cost)
 * **lowlevel_greedy:** sum of conflicts (all the conflicts are counted  and make up the cost)
 
-### lowlevel_with_conflicts.lp
+### lowlevel_with_comments.lp
+Contains comments for making lowlevel.lp more comprehendable, since an ASP file with comments does not work together with the Clingo Python API.
 
 ### make_examples.py 
 Run this file to generate multiple examples of different sizes and robot-densities. The problem files are created using our generator (`gen.py`) and contain the paths. 
