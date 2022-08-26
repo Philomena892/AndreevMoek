@@ -8,7 +8,7 @@ In the folder `CBS` versions of the CBS - short for Constraint Based Search - al
 
 ## examples for others
 
-Contains instances for other group members. You can use these instances for comparing our implementation to yours.
+Contains instances for other groups. You can use these instances for comparing our implementation to yours.
 
 ## examples
 
