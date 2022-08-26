@@ -21,7 +21,7 @@ These results are based on adding one robot after the other to an instance and e
 
 ### benchmark.py
 
-'''
+```
 usage: benchmark.py [-h] [-g] [directory]
 
 positional arguments:
@@ -31,7 +31,7 @@ positional arguments:
 optional arguments:
   -h, --help    show this help message and exit
   -g, --greedy  enable when you want to test the greedy implementation
-'''
+```
 
 This program can be used - with some adjustments to the file format - to run node.py or node_greedy.py on a folder of problem instances. It is designed to run on instances produced by `make_examples.py` and saves the results in `benchmark_results.csv`.
 
@@ -44,7 +44,7 @@ Deprecated ASP programs that compute initial paths (containing conflicts) for al
 ### gen.py
 Creates a random instance, including an initial plan, with specified grid size and number of robots/shelfs. The generated instances are square-shaped and a robot cannot be generated on its corresponding shelf.
 
-'''  
+```
 usage: gen.py [-h] -s SIZE -n ROBOTS output
 positional arguments:
     output                  the robot plans are saved in this file
@@ -53,8 +53,7 @@ optional arguments:
     -s SIZE, --size SIZE    size of generated instance (square shaped)
     -n ROBOTS, --robots ROBOTS
                             the amount of robots randomly placed on the instance
-'''
-
+```
 ### lowlevel.lp, lowlevel_alternative.lp and lowlevel_greedy.lp
 The low-level searches corresponding to the high-level python searches.
 
