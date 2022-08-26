@@ -14,12 +14,13 @@ Execute `python node.py [-h] -hz HORIZON [-b] input [benchmark_file]` over the c
 
 These two folders contain test results in form of .csv files from benchmarking our implementations:
 
-------benchmarkResults---------------------------------------------
+##### benchmarkResults
 The results in this folder are based on instances with different sizes (5x5, 6x6, 7x7, 8x8) and densities (20%, 25%, 30%, 35%, 40%).
-------inc_benchmarkResults-----------------------------------------
+##### inc_benchmarkResults
 These results are based on adding one robot after the other to an instance and each time benchmarking our implementations. The amount of robots starts with 2 robots and goes up to 19, which roughly corresponds to a 40% robot density on the 7x7 field. Since our greedy implementation is still performant enough for more robots, there are also test results with the amount of robots going up to 35 which corresponds to a 70% density.
 
 ### benchmark.py
+
 '''
 usage: benchmark.py [-h] [-g] [directory]
 
@@ -31,6 +32,7 @@ optional arguments:
   -h, --help    show this help message and exit
   -g, --greedy  enable when you want to test the greedy implementation
 '''
+
 This program can be used - with some adjustments to the file format - to run node.py or node_greedy.py on a folder of problem instances. It is designed to run on instances produced by `make_examples.py` and saves the results in `benchmark_results.csv`.
 
 ### dataAnalysis.ipynb
@@ -41,6 +43,7 @@ Deprecated ASP programs that compute initial paths (containing conflicts) for al
 
 ### gen.py
 Creates a random instance, including an initial plan, with specified grid size and number of robots/shelfs. The generated instances are square-shaped and a robot cannot be generated on its corresponding shelf.
+
 '''  
 usage: gen.py [-h] -s SIZE -n ROBOTS output
 positional arguments:
@@ -70,6 +73,7 @@ Creates a folder with example instances containing MIN_ROBOTS to MAX_ROBOTS robo
 2robs.lp with one added robot and its paths.
 
 ### node.py, node_alternative.py and node_greedy.py
+
 ```
 usage: node.py [-h] -hz HORIZON [-b] input [benchmark_file]
     positional arguments:
@@ -81,6 +85,7 @@ usage: node.py [-h] -hz HORIZON [-b] input [benchmark_file]
                               maximum makespan the solution is allowed to have
         -b, --benchmark       save and output benchmarked values
 ```  
+
 The node.py and node_alternative.py implementations will find an optimal solution. Meanwhile node_greedy.py gives a suboptimal solution but is considerably faster.
 
 The benchmark mode will output multiple values:
