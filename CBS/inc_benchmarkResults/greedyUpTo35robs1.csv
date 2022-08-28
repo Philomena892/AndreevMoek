@@ -1,4 +1,12 @@
 file,time,#nodes,pathlength,horizon,#moves,init_conflicts
+inc_benchmarkResults/ex/exUpTo35robs1/2robs.lp,0.01141812899732031,2,0,11,16,0
+inc_benchmarkResults/ex/exUpTo35robs1/3robs.lp,0.1274277969787363,3,1,11,19,2
+inc_benchmarkResults/ex/exUpTo35robs1/4robs.lp,0.18187389799277298,3,1,11,27,2
+inc_benchmarkResults/ex/exUpTo35robs1/5robs.lp,1.9206688760023098,10,7,11,31,4
+inc_benchmarkResults/ex/exUpTo35robs1/6robs.lp,1.176178888999857,8,6,11,36,4
+inc_benchmarkResults/ex/exUpTo35robs1/7robs.lp,1.6983822519832756,14,10,11,48,4
+inc_benchmarkResults/ex/exUpTo35robs1/8robs.lp,1.1268939749861602,10,7,13,45,6
+inc_benchmarkResults/ex/exUpTo35robs1/9robs.lp,1.2253937970090192,11,9,13,47,8
 inc_benchmarkResults/ex/exUpTo35robs1/10robs.lp,1.2369088559935335,13,11,13,53,8
 inc_benchmarkResults/ex/exUpTo35robs1/11robs.lp,1.5309310680022463,16,12,12,63,14
 inc_benchmarkResults/ex/exUpTo35robs1/12robs.lp,2.590523190010572,29,19,11,67,18
@@ -19,7 +27,6 @@ inc_benchmarkResults/ex/exUpTo35robs1/26robs.lp
 inc_benchmarkResults/ex/exUpTo35robs1/27robs.lp,71.57407039499958,531,248,13,219,98
 inc_benchmarkResults/ex/exUpTo35robs1/28robs.lp,69.91800181899453,565,226,12,221,100
 inc_benchmarkResults/ex/exUpTo35robs1/29robs.lp
-inc_benchmarkResults/ex/exUpTo35robs1/2robs.lp,0.01141812899732031,2,0,11,16,0
 inc_benchmarkResults/ex/exUpTo35robs1/30robs.lp,242.17068319499958,1452,436,13,273,118
 inc_benchmarkResults/ex/exUpTo35robs1/31robs.lp,122.93874436500482,810,315,13,245,124
 inc_benchmarkResults/ex/exUpTo35robs1/32robs.lp
