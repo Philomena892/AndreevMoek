@@ -14,6 +14,10 @@ Contains instances for other groups. You can use these instances for comparing o
 
 This directory contains example instances that we used to verify our code.
 
+## figures
+
+Contains the graphs created in the statistical evaluation by dataAnalysis.ipynp from the CBS folder.
+
 ## images
 
 Contains images of examples to be used in README files.
