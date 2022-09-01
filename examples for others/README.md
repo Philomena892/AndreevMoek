@@ -4,10 +4,6 @@ These are the examples, made for asprillo, for the other groups in our 'KRR Proj
 
 In general node_greedy.py performs significantly better than node.py, but isn't always optimal.
 
-## easy_unsat.lp
-
-A very easy problem with two robots who block each others paths. Its purpose is to measure how well a program finds out that it is unsatisfiable.
-
 ## ex8.lp
 
 A field of size 7x7 and a robot-density of 40%. node.py could solve it in about 30s on our computer, which is relativaly fast for a problem of this scale.
