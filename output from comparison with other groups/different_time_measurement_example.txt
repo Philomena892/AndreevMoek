@@ -1,0 +1,9 @@
+RaatschenSauerbrei_IS:
+instance       AndreevMoek/ex8.lp
+makespan                      319
+soc                          2974
+total_moves                   206
+exec_time                 296.384
+Name: 6, dtype: object
+
+actually measured time was closer to 6 min

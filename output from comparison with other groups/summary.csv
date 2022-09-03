@@ -1,0 +1,40 @@
+file,time,horizon,#moves,program,soc
+AndreevMoek/14robs.lp,122.60068419999999,9.0,67.0,AndreevMoek CBS,
+AndreevMoek/14robs.lp,6.1332824,9.0,71.0,AndreevMoek greedyCBS,
+AndreevMoek/14robs.lp,3.2475145,9.0,63.0,RaatschenSauerbrei CBS,65.0
+AndreevMoek/14robs.lp,1.0430493,15.0,77.0,RaatschenSauerbrei IS,210.0
+AndreevMoek/14robs.lp,0.44555120000000015,10.0,71.0,RaatschenSauerbrei PP,73.0
+AndreevMoek/ex8.lp,117.700398,10.0,94.0,AndreevMoek CBS,
+AndreevMoek/ex8.lp,8.839042899999997,10.0,102.0,AndreevMoek greedyCBS,
+AndreevMoek/ex8.lp,6.3594384000000455,10.0,94.0,RaatschenSauerbrei CBS,94.0
+AndreevMoek/ex8.lp,0.5847545000000309,10.0,96.0,RaatschenSauerbrei PP,98.0
+Behrens/mix.lp,19.0023012,11.0,182.0,AndreevMoek greedyCBS,
+Behrens/small_room.lp,8.6960614,12.0,33.0,AndreevMoek CBS,
+Behrens/small_room.lp,3.6176923999999997,16.0,41.0,AndreevMoek greedyCBS,
+Behrens/small_room.lp,1.4213357000000002,11.0,29.0,RaatschenSauerbrei CBS,30.0
+Behrens/small_room.lp,0.20942859999999985,12.0,29.0,RaatschenSauerbrei IS,36.0
+Behrens/small_room.lp,0.17565470000000016,11.0,29.0,RaatschenSauerbrei PP,30.0
+GlätzerAkil/mini_maze.lp,0.4325782,14.0,29.0,AndreevMoek CBS,
+GlätzerAkil/mini_maze.lp,0.6151831000000001,22.0,52.0,AndreevMoek greedyCBS,
+GlätzerAkil/mini_maze.lp,0.5826061666666665,,,Pan,60.0
+GlätzerAkil/mini_maze.lp,0.3914806,,,Pan,48.0
+GlätzerAkil/mini_maze.lp,0.7508587000000002,15.0,56.0,RaatschenSauerbrei CBS,58.0
+GlätzerAkil/mini_maze.lp,0.4595764999999998,15.0,56.0,RaatschenSauerbrei PP,58.0
+GlätzerAkil/warehouse.lp,0.04955369999999998,17.0,60.0,AndreevMoek CBS,
+GlätzerAkil/warehouse.lp,0.049498199999999985,17.0,60.0,AndreevMoek greedyCBS,
+GlätzerAkil/warehouse.lp,0.7568513000000001,17.0,60.0,RaatschenSauerbrei CBS,60.0
+KhatovaCordova/24_merged_plans.lp,105.60823870000002,15.0,247.0,AndreevMoek greedyCBS,
+KhatovaCordova/24_merged_plans.lp,266.85119660000004,16.0,235.0,RaatschenSauerbrei CBS,236.0
+KhatovaCordova/24_merged_plans.lp,2.6631298999999995,15.0,239.0,RaatschenSauerbrei PP,263.0
+KhatovaCordova/30_merged_plans.lp,43.1340531,19.0,309.0,AndreevMoek greedyCBS,
+KhatovaCordova/30_merged_plans.lp,14.133931999999998,19.0,303.0,RaatschenSauerbrei CBS,303.0
+KhatovaCordova/30_merged_plans.lp,3.6144631,19.0,307.0,RaatschenSauerbrei PP,316.0
+Pan/x6_y11_r16_fo1_cmw1_cx4_cy4_rom2_instance_002.lp,14.716154166666668,,,Pan,332.0
+Pan/x6_y11_r32_fo2_cmw1_cx4_cy4_rom2_instance_004.lp,87.12482940000002,,,Pan,177.0
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp,3.8727905,,,Pan,119.0
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp,4.1853713,31.0,133.0,RaatschenSauerbrei IS,279.0
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp,2.3296617000000004,23.0,129.0,RaatschenSauerbrei PP,153.0
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-2.lp,7.305221799999999,12.0,48.0,AndreevMoek greedyCBS,
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-2.lp,0.42661696666666665,,,Pan,47.0
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-2.lp,19.908877800000003,12.0,44.0,RaatschenSauerbrei CBS,45.0
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-2.lp,0.2429803000000028,8.0,46.0,RaatschenSauerbrei PP,49.0

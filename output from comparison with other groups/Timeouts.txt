@@ -1,0 +1,22 @@
+AndreevMoek_CBS:
+Behrens/mix.lp
+KhatovaCordova/24_merged_plans.lp
+KhatovaCordova/30_merged_plans.lp
+Pan/x6_y11_r32_fo2_cmw1_cx4_cy4_rom2_instance_004.lp
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-2.lp
+
+AndreevMoek_gCBS:
+Pan/x6_y11_r32_fo2_cmw1_cx4_cy4_rom2_instance_004.lp
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp
+
+GlätzerAkil:
+All exept its own test-files (and did not terminate)
+
+RaatschenSauerbrei_IS:
+AndreevMoek/ex8.lp
+Behrens/mix.lp
+
+RaatschenSauerbrei_CBS:
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp
+Pan/x6_y11_r32_fo2_cmw1_cx4_cy4_rom2_instance_004.lp

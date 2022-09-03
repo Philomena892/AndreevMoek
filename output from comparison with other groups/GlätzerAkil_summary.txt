@@ -1,0 +1,6 @@
+total_processing of mini_maze.lp: 968750000
+total_real_world of mini_maze.lp: 1001423700
+difference of mini_maze.lp: 32673700
+total_processing of warehouse.lp: 1468750000
+total_real_world of warehouse.lp: 1481458900
+difference of warehouse.lp: 12708900

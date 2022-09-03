@@ -1,0 +1,9 @@
+GlätzerAkil:
+Did not terminate and the terminal froze
+
+Pan:
+"unexpected" for every instance exept their own and Raatschen Sauerbrei
+There was a solution for GlätzerAkil later on
+
+RaatschenSauerbrei:
+IS did not terminate on Behrens/mix.py, which resulted in none of the programs beeing able to (even when excluding IS)

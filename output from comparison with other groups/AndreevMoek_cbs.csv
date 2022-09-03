@@ -1,0 +1,12 @@
+file,time,#nodes,pathlength,horizon,#moves,init_conflicts
+AndreevMoek/14robs.lp,122.6006842,337,21,9,67,18
+AndreevMoek/ex8.lp,117.70039799999999,241,31,10,94,46
+Behrens/mix.lp
+Behrens/small_room.lp,8.6960614,21,6,12,33,10
+GlätzerAkil/mini_maze.lp,0.43257819999999997,4,2,14,29,8
+GlätzerAkil/warehouse.lp,0.04955369999999998,2,0,17,60,0
+KhatovaCordova/24_merged_plans.lp
+KhatovaCordova/30_merged_plans.lp
+Pan/x6_y11_r32_fo2_cmw1_cx4_cy4_rom2_instance_004.lp
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-1.lp
+RaatschenSauerbrei/Plan-Sauerbrei-Raatschen-2.lp
