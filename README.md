@@ -22,6 +22,10 @@ Contains the graphs created in the statistical evaluation by dataAnalysis.ipynp 
 
 Contains images of examples to be used in README files.
 
+## images
+
+Contains all the data we collected from benchmarking in the group. It also contains a summary.
+
 ## old work
 
 `solve-multiple-vertexConflicts-M.lp`
